@@ -1,0 +1,21 @@
+<?php
+// $Id$
+
+
+/**
+ * @file
+ *   This module provides a CCK Field, that can control field access on other
+ *   fields of the same node for different audience groups.
+ */
+
+
+/**
+ * Implementation of hook_field_access().
+ *
+ * This implementation controls the whole module functionality. The rest of the
+ * functions is "only" for loading and saving settings and configuration. Ok
+ * there is the field itself and the widget, too.
+ */
+function faf_field_access($op, $field, $account, $node = NULL) {
+
+}
