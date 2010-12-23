@@ -19,3 +19,446 @@
 function faf_field_access($op, $field, $account, $node = NULL) {
 
 }
+
+/**
+ * Implementation of hook_theme().
+ */
+function faf_theme() {
+  return array(
+    'faf_select' => array(
+      'arguments' => array('element' => NULL),
+    ),
+    'faf_buttons' => array(
+      'arguments' => array('element' => NULL),
+    ),
+    //'faf_formatter_default' => array(
+    //  'arguments' => array('element'),
+    //),
+    //'faf_formatter_plain' => array(
+    //  'arguments' => array('element'),
+    //),
+  );
+}
+
+
+//============ FIELD ==============//
+
+/**
+* Implementation of hook_field_info().
+*/
+function faf_field_info() {
+  return array(
+    'faf' => array(
+      'label' => t('Field Access field'),
+      'description' => t('Store node dependent acces control.'),
+    ),
+  );
+}
+
+/**
+* Implementation of hook_field_settings().
+*/
+function faf_field_settings($op, $field) {
+  switch ($op) {
+    // Create the form element to be used on the field
+    // settings form. Field settings will be the same for
+    // all shared instances of the same field and should
+    // define the way the value will be stored
+    // in the database.
+    case 'form':
+      $form = array();
+      $form['privacy_groups'] = array(
+        '#type' => 'select',
+        '#title' => t('Privacy Groups'),
+        '#options' => _faf_get_privacy_groups(),
+        '#multiple' => TRUE,
+        '#default_value' => isset($field['privacy_groups'] ) ? $field['privacy_groups'] : array(),
+        '#required' => TRUE,
+
+        // Use #element_validate to validate the settings.
+        //'#element_validate' => array('_faf_length_validate'),
+        '#description' => t('Select privacy groups that shall be selectable for the user.'),
+      );
+
+      $form['fields'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Fields'),
+        '#description' => t('Select the fields which access shall be controlled by this field.'),
+        '#options' => _faf_get_content_fields(),
+        '#default_value' => isset($field['fields'] ) ? $field['fields'] : array(),
+      );
+
+      return $form;
+
+    // Return an array of the names of the field settings
+    // defined by this module. These are the items that
+    // CCK will store in the field definition
+    // and they will be available in the $field array.
+    // This should match the items defined in 'form' above.
+    case 'save':
+      return array('privacy_groups', 'fields');
+
+    // Define the database storage for this field using
+    // the same construct used by schema API. Most fields
+    // have only one column, but there can be any number
+    // of different columns. After the schema API values,
+    // add two optional values to each column,
+    //  'views', to define a Views field
+    //  'sortable', to add a Views sort field
+    case 'database columns':
+      $columns['value'] = array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => FALSE,
+        'sortable' => TRUE,
+        'views' => TRUE,
+      );
+      return $columns;
+
+    // Optional: Make changes to the default $data array
+    // created for Views. Omit this if no changes are
+    // needed, use it to add a custom handler or make
+    // other changes.
+    //case 'views data':
+    //  // Start with the $data created by CCK
+    //  // and alter it as needed. The following
+    //  // code illustrates how you would retrieve
+    //  // the necessary data.
+    //  $data = content_views_field_views_data($field);
+    //  $db_info = content_database_info($field);
+    //  $table_alias = content_views_tablename($field);
+    //  $field_data = $data[$table_alias][$field['field_name'] .'_value'];
+    //  // Make changes to $data as needed here.
+    //  return $data;
+  }
+}
+
+/**
+* Custom validation of settings values.
+*
+* Create callbacks like this to do settings validation.
+*/
+function _faf_settings_validate($element, &$form_state) {
+  //$value = $form_state['values']['max_length'];
+  //if ($value && !is_numeric($value)|| $value < 1 || $value > 255) {
+  //  form_set_error('max_length', t('"Max length" must be a number between 1 and 255.'));
+  //}
+}
+
+/**
+* Implementation of hook_field().
+*/
+function faf_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {
+    // Do validation on the field values here. The widget
+    // will do its own validation and you cannot make any
+    // assumptions about what kind of widget has been used,
+    // so don't validate widget values, only field values.
+    case 'validate':
+      if (is_array($items)) {
+        $first = TRUE;
+        foreach ($items as $delta => $item) {
+
+          // The error_element is needed so that CCK can
+          // set an error on the right sub-element when
+          // fields are deeply nested in the form.
+          $error_element = isset($item['_error_element']) ? $item['_error_element'] : '';
+          if (is_array($item) && isset($item['_error_element'])) unset($item['_error_element']);
+          $allowed_values = array_keys(faf_allowed_values($field));
+          if (!in_array($item['value'], $allowed_values)) {
+            form_set_error($error_element, t('%name: the passed value %value is not allowed.', array('%name' => $field['widget']['label'], '%value' => $item['value'])));
+          }
+        }
+      }
+      return $items;
+
+    // This is where you make sure that user-provided
+    // data is sanitized before being displayed.
+    case 'sanitize':
+      foreach ($items as $delta => $item) {
+        $faf = check_plain($item['value']);
+        $items[$delta]['safe'] = $faf;
+      }
+  }
+}
+
+/**
+* Implementation of hook_content_is_empty().
+*
+* CCK has no way to know if something like a zero is
+* an empty value or a valid value, so return
+* TRUE or FALSE to a populated field $item array.
+* CCK uses this to remove empty multi-value elements
+* from forms.
+*/
+function faf_content_is_empty($item, $field) {
+  if (empty($item['value'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Helper function to retrieve allowed values for the field options.
+ *
+ * This implementation let us use optionwidgets.module cck widgets.
+ * @see content_allowed_values().
+ */
+function faf_allowed_values($field) {
+  $return = array();
+
+  if (!$field['required']) {
+    $return[''] = t('&lt;No access restriction&gt;');
+  }
+  $groups = _faf_get_privacy_groups();
+  $selected_groups = array_filter($field['privacy_groups']);
+  $groups = array_intersect_key($groups, $selected_groups);
+
+  return array_merge($return, $groups);
+}
+
+/**
+ * Helper function to retreive available fields.
+ */
+function _faf_get_content_fields() {
+  $types = content_types();
+  $field_types = _content_field_types();
+
+  $options = array();
+  foreach ($types as $type_name => $type) {
+    if (isset($type['fields']) && count($type['fields'])) {
+      foreach ($type['fields'] as $field_name => $field) {
+        $key = "$type_name:$field_name";
+        $field_type = $field_types[$field['type']];
+        $text = t('@node_type - @field_type: @field (@label)', array('@node_type' => $type['name'], '@field_type' => t($field_type['label']), '@label' => t($field['widget']['label']), '@field' => $field['field_name']));
+        $options[$key] = (drupal_strlen($text) > 80) ? truncate_utf8($text, 77) . '...' : $text;
+      }
+    }
+  }
+  // Sort the list by type, then by field name, then by label.
+  //asort($options);
+
+  return $options;
+}
+
+/**
+ * Temp for testing. Will be provieded by privacy_groups.module.
+ */
+function _faf_get_privacy_groups() {
+  return array(
+    'g1' => 'Group 1',
+    'g2' => 'Group 2',
+    'g3' => 'Group 3',
+  );
+}
+
+
+/**
+ * Implementation of hook_widget_info().
+ *
+ * We need custom handling of multiple values for the userreference_select
+ * widget because we need to combine them into a options list rather
+ * than display multiple elements.
+ *
+ * We will use the content module's default handling for default value.
+ *
+ * Callbacks can be omitted if default handing is used.
+ * They're included here just so this module can be used
+ * as an example for custom modules that might do things
+ * differently.
+ */
+function faf_widget_info() {
+  return array(
+    'faf_select' => array(
+      'label' => t('Select list'),
+      'field types' => array('faf'),
+      'multiple values' => CONTENT_HANDLE_MODULE,
+      'callbacks' => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+    'faf_buttons' => array(
+      'label' => t('Check boxes/radio buttons'),
+      'field types' => array('faf'),
+      'multiple values' => CONTENT_HANDLE_MODULE,
+      'callbacks' => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of FAPI hook_elements().
+ */
+function faf_elements() {
+  return array(
+    'faf_select' => array(
+      '#input' => TRUE,
+      '#columns' => array('value'), '#delta' => 0,
+      '#process' => array('faf_select_process'),
+    ),
+    'faf_buttons' => array(
+      '#input' => TRUE,
+      '#columns' => array('value'), '#delta' => 0,
+      '#process' => array('faf_buttons_process'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_widget_settings().
+ */
+function faf_widget_settings($op, $widget) {
+  switch ($op) {
+    case 'form':
+      $form = array();
+      return $form;
+
+    case 'save':
+      return array();
+  }
+}
+
+/**
+ * Implementation of hook_widget().
+ */
+function faf_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  switch ($field['widget']['type']) {
+    case 'faf_select':
+      $element = array(
+        '#type' => 'faf_select',
+        '#default_value' => $items,
+      );
+      break;
+
+    case 'faf_buttons':
+      $element = array(
+        '#type' => 'faf_buttons',
+        '#default_value' => $items,
+      );
+      break;
+
+  }
+  return $element;
+}
+
+/**
+ * Process an individual element.
+ *
+ * Build the form element. When creating a form using FAPI #process,
+ * note that $element['#value'] is already set.
+ *
+ * The $fields array is in $form['#field_info'][$element['#field_name']].
+ *
+ * @see faf_buttons_process()
+ */
+function faf_select_process($element, $edit, $form_state, $form) {
+  // The faf_select widget doesn't need to create its own
+  // element, it can wrap around the optionwidgets_select element.
+  // Add a validation step where the value can be unwrapped.
+  $field_key  = $element['#columns'][0];
+  $element[$field_key] = array(
+    '#type' => 'optionwidgets_select',
+    '#default_value' => isset($element['#value']) ? $element['#value'] : '',
+    // The following values were set by the content module and need
+    // to be passed down to the nested element.
+    '#title' => $element['#title'],
+    '#required' => $element['#required'],
+    '#description' => $element['#description'],
+    '#field_name' => $element['#field_name'],
+    '#type_name' => $element['#type_name'],
+    '#delta' => $element['#delta'],
+    '#columns' => $element['#columns'],
+  );
+  if (empty($element[$field_key]['#element_validate'])) {
+    $element[$field_key]['#element_validate'] = array();
+  }
+  array_unshift($element[$field_key]['#element_validate'], 'faf_optionwidgets_validate');
+  return $element;
+}
+
+/**
+ * Process an individual element.
+ *
+ * Build the form element. When creating a form using FAPI #process,
+ * note that $element['#value'] is already set.
+ *
+ * The $fields array is in $form['#field_info'][$element['#field_name']].
+ *
+ * @see userreference_buttons_process()
+ */
+function faf_buttons_process($element, $edit, $form_state, $form) {
+  // The faf_select widget doesn't need to create its own
+  // element, it can wrap around the optionwidgets_select element.
+  // Add a validation step where the value can be unwrapped.
+  $field_key  = $element['#columns'][0];
+  $element[$field_key] = array(
+    '#type' => 'optionwidgets_buttons',
+    '#default_value' => isset($element['#value']) ? $element['#value'] : '',
+    // The following values were set by the content module and need
+    // to be passed down to the nested element.
+    '#title' => $element['#title'],
+    '#required' => $element['#required'],
+    '#description' => $element['#description'],
+    '#field_name' => $element['#field_name'],
+    '#type_name' => $element['#type_name'],
+    '#delta' => $element['#delta'],
+    '#columns' => $element['#columns'],
+  );
+  if (empty($element[$field_key]['#element_validate'])) {
+    $element[$field_key]['#element_validate'] = array();
+  }
+  array_unshift($element[$field_key]['#element_validate'], 'faf_optionwidgets_validate');
+  return $element;
+}
+
+/**
+ * Validate a select/buttons element.
+ *
+ * @see userreference__ptionwidgets_validate
+ *
+ * Remove the wrapper layer and set the right element's value.
+ * We don't know exactly where this element is, so we drill down
+ * through the element until we get to our key.
+ *
+ * We use $form_state['values'] instead of $element['#value']
+ * to be sure we have the most accurate value when other modules
+ * like optionwidgets are using #element_validate to alter the value.
+ */
+function faf_optionwidgets_validate($element, &$form_state) {
+  $field_key  = $element['#columns'][0];
+
+  $value = $form_state['values'];
+  $new_parents = array();
+  foreach ($element['#parents'] as $parent) {
+    $value = $value[$parent];
+    // Use === to be sure we get right results if parent is a zero (delta) value.
+    if ($parent === $field_key) {
+      $element['#parents'] = $new_parents;
+      form_set_value($element, $value, $form_state);
+      break;
+    }
+    $new_parents[] = $parent;
+  }
+}
+
+
+/**
+ * FAPI theme for an individual elements.
+ *
+ * The textfield or select is already rendered by the
+ * textfield or select themes and the html output
+ * lives in $element['#children']. Override this theme to
+ * make custom changes to the output.
+ *
+ * $element['#field_name'] contains the field name
+ * $element['#delta]  is the position of this element in the group
+ */
+function theme_faf_select($element) {
+  return $element['#children'];
+}
+
+function theme_faf_buttons($element) {
+  return $element['#children'];
+}

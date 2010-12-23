@@ -3,4 +3,5 @@ name = "Field Access Field"
 description = "Control access on fields via a cck field"
 core = 6.x
 dependencies[] = content
+dependencies[] = optionwidgets
 package = CCK
