@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ *   This module provides an API to define a audience via audience types.
+ *   This information will be used by faf to define access groups.
+ */
+
+
+/**
+ * Wrapper function for loading types via ctools plugin.
+ */
+function faf_audience_get_types() {
+  ctools_include('plugins');
+  return ctools_get_plugins('faf_audience', 'types');
+}
+
+/**
+ * Wrapper function for loading a single audience type, using ctools plugin.
+ */
+function faf_audience_get_type($audience_type) {
+  ctools_include('plugins');
+  return ctools_get_plugins('faf_audience', 'types', $audience_type);
+}
+
+/**
+ * Implementation of pseudohook_ctools_plugin_PLUGINTYPE().
+ *
+ * Inform CTools about default values for the plugin implementation.
+ */
+function faf_audience_ctools_plugin_types() {
+  return array(
+    'defaults' => array(
+      // A callback function
+      'member callback' => NULL,
+      // Define configuration options
+      'config' => array(
+        '#type' => 'select',
+        '#multiple' => FALSE,
+        '#required' => FALSE,
+        '#options' => array(),
+      ),
+    ),
+    'process' => '_faf_audience_ctools_plugin_process',
+  );
+}
