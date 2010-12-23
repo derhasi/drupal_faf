@@ -1,0 +1,6 @@
+;$Id$
+name = "FAF Privacy Groups"
+description = "Provides API and default implementations for privacy types and grouping those"
+core = 6.x
+dependencies[] = ctools
+package = FAF
