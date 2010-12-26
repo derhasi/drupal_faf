@@ -53,14 +53,13 @@ function faf_audience_ctools_plugin_audience_types() {
   return array(
     'defaults' => array(
       // A callback function
-      'member callback' => NULL,
-      // Define configuration options
-      //'config' => array(
-      //  '#type' => 'select',
-      //  '#multiple' => FALSE,
-      //  '#required' => FALSE,
-      //  '#options' => array(),
-      //),
+      'is member callback' => NULL,
+      // Selector options (either array or callback)
+      'selector options' => array('' => t('&lt none &gt')),
+      'selector title' => 'Selector',
+      'selector description' => 'Configure the given audience type by selecting an option.',
+      // @TODO: maybe additional config form
+      // 'config form' => '',
     ),
     //'process' => '_faf_audience_ctools_plugin_process',
   );
@@ -97,10 +96,10 @@ function faf_audience_ctools_plugin_api($owner, $api) {
 }
 
 /**
-* Implementation of hook_default_faf_audience().
-*
-* Provide a couple of default presets for
-*/
+ * Implementation of hook_default_faf_audience_preset().
+ *
+ * Provide a couple of default audience presets.
+ */
 function faf_audience_default_faf_audience_preset() {
   $export = array();
 

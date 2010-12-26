@@ -89,14 +89,38 @@ function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
   // Add audience type specific forms
   if (!$new && $audience_type) {
 
-    // Add Mymodule's configuration interface.
-    $form['config'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Mymodule configuration'),
-      '#description' => t('This is just the simplest possible example of a configuration interface.'),
-      '#default_value' => $preset->config,
-      '#required' => false,
-    );
+    // Get selector options from array ...
+    if (is_array($audience_type['selector options'])) {
+      $selector_options = $audience_type['selector options'];
+    }
+    // ... or callback
+    elseif ($selector_options_callback = ctools_plugin_get_function($audience_type, 'selector options')) {
+      $selector_options = $selector_options_callback();
+    }
+    // else do not show a selector form element.
+    else {
+      $form['selector'] = NULL;
+    }
+
+    // Show select form element for selectore
+    if (isset($options)) {
+      $form['selector'] = array(
+        '#type' => 'select',
+        '#title' => $audience_type['selector title'],
+        '#description' => $audience_type['selector description'],
+        '#options' => $selector_options,
+        '#default_value' => $preset->selector,
+      );
+    }
+
+    // @TODO: add additional configuration form.
+    //$form['config'] = array(
+    //  '#type' => 'textfield',
+    //  '#title' => t('Mymodule configuration'),
+    //  '#description' => t('This is just the simplest possible example of a configuration interface.'),
+    //  '#default_value' => $preset->config,
+    //  '#required' => false,
+    //);
   }
 
 }
