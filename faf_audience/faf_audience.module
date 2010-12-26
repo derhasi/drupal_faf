@@ -11,7 +11,7 @@
  */
 function faf_audience_get_types() {
   ctools_include('plugins');
-  return ctools_get_plugins('faf_audience', 'types');
+  return ctools_get_plugins('faf_audience', 'audience_types');
 }
 
 /**
@@ -19,7 +19,7 @@ function faf_audience_get_types() {
  */
 function faf_audience_get_type($audience_type) {
   ctools_include('plugins');
-  return ctools_get_plugins('faf_audience', 'types', $audience_type);
+  return ctools_get_plugins('faf_audience', 'audience_types', $audience_type);
 }
 
 /**
@@ -27,21 +27,32 @@ function faf_audience_get_type($audience_type) {
  *
  * Inform CTools about default values for the plugin implementation.
  */
-function faf_audience_ctools_plugin_types() {
+function faf_audience_ctools_plugin_audience_types() {
   return array(
     'defaults' => array(
       // A callback function
       'member callback' => NULL,
       // Define configuration options
-      'config' => array(
-        '#type' => 'select',
-        '#multiple' => FALSE,
-        '#required' => FALSE,
-        '#options' => array(),
-      ),
+      //'config' => array(
+      //  '#type' => 'select',
+      //  '#multiple' => FALSE,
+      //  '#required' => FALSE,
+      //  '#options' => array(),
+      //),
     ),
-    'process' => '_faf_audience_ctools_plugin_process',
+    //'process' => '_faf_audience_ctools_plugin_process',
   );
+}
+
+/**
+ * Implement hook_ctools_plugin_directory().
+ *
+ * So we can define some data for different plugins, as faf_audience_types.
+ */
+function faf_audience_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'faf_audience' && $plugin == 'audience_types') {
+    return 'plugins/audience_types';
+  }
 }
 
 //----- Audience (Exportables) ----//
