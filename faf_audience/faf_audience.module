@@ -55,7 +55,7 @@ function faf_audience_ctools_plugin_audience_types() {
       // A callback function
       'is member callback' => NULL,
       // Selector options (either array or callback)
-      'selector options' => array('' => t('&lt none &gt')),
+      'selector options' => NULL,
       'selector title' => 'Selector',
       'selector description' => 'Configure the given audience type by selecting an option.',
       // @TODO: maybe additional config form
@@ -71,7 +71,6 @@ function faf_audience_ctools_plugin_audience_types() {
  * So we can define some data for different plugins, as faf_audience_types.
  */
 function faf_audience_ctools_plugin_directory($module, $plugin) {
-
   // FAF Audience Types
   if ($module == 'faf_audience' && $plugin == 'audience_types') {
     return 'plugins/audience_types';
