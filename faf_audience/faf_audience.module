@@ -109,7 +109,7 @@ function faf_audience_default_faf_audience_preset() {
   $preset->api_version = 1;
   $preset->name = 'user_1';
   $preset->description = 'Super user';
-  $preset->atype = 'user';
+  $preset->audience_type = 'user';
   $preset->option = '1';
   $preset->config = NULL;
   $export['user_1'] = $preset;
@@ -132,23 +132,23 @@ function faf_audience_default_faf_audience_preset() {
 function _faf_audience_validate_preset($preset, $set_error = FALSE) {
   $valid = TRUE;
 
-  // An existing preset needs an atype.
+  // An existing preset needs an audience_type.
   if (isset($preset->name)) {
-    if (!isset($preset->atype) || !$preset->atype) {
+    if (!isset($preset->audience_type) || !$preset->audience_type) {
       $valid = FALSE;
       if ($set_error) {
-        form_set_error('atype', t('There has to be a audience type selected!'));
+        form_set_error('audience_type', t('There has to be a audience type selected!'));
       }
     }
   }
 
   // Does audience type exist
-  if (isset($preset->atype)) {
-    $res = faf_audience_get_type($preset->atype);
+  if (isset($preset->audience_type)) {
+    $res = faf_audience_get_type($preset->audience_type);
     if (empty($res)) {
       $valid = FALSE;
       if ($set_error) {
-        form_set_error('atype', t('The given audience type "%audience" is not available. Please activate or update the module providing this audience type.', array('%audience_type' => $preset->atype)));
+        form_set_error('audience_type', t('The given audience type "%audience" is not available. Please activate or update the module providing this audience type.', array('%audience_type' => $preset->audience_type)));
       }
     }
   }

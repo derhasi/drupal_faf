@@ -54,7 +54,7 @@ function faf_audience_schema() {
         'length' => '255',
         'description' => 'A human readable name for the audience preset.',
       ),
-      'atype' => array(
+      'audience_type' => array(
         'type' => 'varchar',
         'length' => '64',
         'description' => 'Name of audience type.',
@@ -62,12 +62,12 @@ function faf_audience_schema() {
       'selector' => array(
         'type' => 'varchar',
         'length' => '255',
-        'description' => 'An optional primary setting, dependent on atype.',
+        'description' => 'An optional primary setting, dependent on audience_type.',
       ),
       'config' => array(
         'type' => 'text',
         'size' => 'big',
-        'description' => 'A serialized array of audience options dependent on atype.',
+        'description' => 'A serialized array of audience options dependent on audience_type.',
       ),
     ),
     'primary key' => array('aid'),

@@ -48,7 +48,7 @@ dpm($preset);
   $new = !(isset($preset->name) && $preset->name);
 
   // Creating
-  $form['atype'] = array(
+  $form['audience_type'] = array(
     '#type' => 'select',
     '#title' => t('Audience Type'),
     '#description' => t('Select the audience type, this audience definition shall be specified by.'),
