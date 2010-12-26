@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function faf_audience_install() {
+  drupal_install_schema('faf_audience');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function faf_audience_uninstall() {
+  drupal_uninstall_schema('faf_audience');
+}
+
+/**
+ * Implementation of hook_schema().
+ *
+ * Contains ctools exportable definitions.
+ */
+function faf_audience_schema() {
+  $schema['faf_audience'] = array(
+    'description' => t('Table storing faf_audience definitions.'),
+    'export' => array(
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'aid',
+      'identifier' => 'faf_audience', // Exports will be as $faf_audience
+      'can disable' => TRUE,
+      'default hook' => 'default_faf_audience',  // Function hook name.
+      'api' => array(
+        'owner' => 'faf_audience',
+        'api' => 'default_faf_audience',  // Base name for api include files.
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this object. Used to identify it programmatically.',
+      ),
+      'aid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
+        'no export' => TRUE, // Do not export database-only keys.
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A human readable name of faf_audience.',
+      ),
+      'atype' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'description' => 'Key for a faf_audience type.',
+      ),
+      'option' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A single primary option additional to atype.',
+      ),
+      'config' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'A serialized array of audience options dependent on atype.',
+      ),
+    ),
+    'primary key' => array('aid'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+  return $schema;
+}
