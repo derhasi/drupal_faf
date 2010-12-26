@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * Export UI plugin for setting up FAF Audience sets and make them exportable
+ * via UI.
+ */
+
+
+/**
+ * Define this Export UI plugin.
+ */
+$plugin = array(
+  'schema' => 'faf_audience',  // As defined in hook_schema().
+  'access' => 'administer faf_audience',  // Define a permission users must have to access these pages.
+
+  // Define the menu item.
+  'menu' => array(
+    'menu item' => 'faf_audience',
+    'menu title' => 'FAF Audience',
+    'menu description' => 'Administer FAF Audience sets.',
+  ),
+
+  // Define user interface texts.
+  'title singular' => t('set'),
+  'title plural' => t('sets'),
+  'title singular proper' => t('FAF audience set'),
+  'title plural proper' => t('FAF audience sets'),
+
+  // Define the names of the functions that provide the add/edit forms.
+  'form' => array(
+    'settings' => 'faf_audience_ctools_export_ui_form',
+    // 'submit' and 'validate' are also valid callbacks.
+  ),
+);
+
+
+/**
+* Define the preset add/edit form.
+*/
+function faf_audience_ctools_export_ui_form(&$form, &$form_state) {
+  $preset = $form_state['item'];
+
+  $audience_types = faf_audience_types_options_array('label');
+
+  // Existing sets have to consist of a aid, a name and a valid Audience Type
+  if ($preset->aid && $preset->name && key_exists($preset->atype, $audience_types)) {
+
+  }
+
+  //
+  $new = (!isset($preset->atype) || !$preset->atype);
+
+  // Creating
+  if ($new) {
+    $form['atype'] = array(
+      '#type' => 'select',
+      '#title' => t('Audience Type'),
+      '#description' => t('Select the audience type, this audience definition shall be specified by.'),
+      '#default_value' => NULL,
+      '#options' => $audience_types,
+      '#required' => TRUE,
+    );
+  }
+
+  $form['description'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Description'),
+    '#description' => t('The human readable name or description of this preset.'),
+    '#default_value' => $preset->description,
+    '#required' => true,
+  );
+
+
+
+  // Add Mymodule's configuration interface.
+  $form['config'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mymodule configuration'),
+    '#description' => t('This is just the simplest possible example of a configuration interface.'),
+    '#default_value' => $preset->config,
+    '#required' => true,
+  );
+
+}
+
+?>

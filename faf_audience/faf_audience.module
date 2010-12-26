@@ -6,6 +6,14 @@
  *   This information will be used by faf to define access groups.
  */
 
+
+/**
+ * Implementation of hook_perm().
+ */
+function faf_audience_perm() {
+  return array('administer faf_audience');
+}
+
 /**
  * Wrapper function for loading types via ctools plugin.
  */
@@ -20,6 +28,20 @@ function faf_audience_get_types() {
 function faf_audience_get_type($audience_type) {
   ctools_include('plugins');
   return ctools_get_plugins('faf_audience', 'audience_types', $audience_type);
+}
+
+/**
+ * Helper function to retrieve options as keyed array from plugin definitions.
+ */
+function faf_audience_types_options_array($option) {
+  $plugins = faf_audience_get_types();
+  $return = array();
+  foreach ($plugins as $name => $plugin) {
+    if (isset($plugin[$option])) {
+      $return[$name] = $plugin[$option];
+    }
+  }
+  return $return;
 }
 
 /**
@@ -50,8 +72,14 @@ function faf_audience_ctools_plugin_audience_types() {
  * So we can define some data for different plugins, as faf_audience_types.
  */
 function faf_audience_ctools_plugin_directory($module, $plugin) {
+
+  // FAF Audience Types
   if ($module == 'faf_audience' && $plugin == 'audience_types') {
     return 'plugins/audience_types';
+  }
+  // Load the export_ui plugin for implementing faf_audience settings page.
+  elseif ($plugin =='export_ui') {
+    return 'plugins/export_ui';
   }
 }
 

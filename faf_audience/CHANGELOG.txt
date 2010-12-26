@@ -1,0 +1,8 @@
+; $Id$
+
+Initial DEV State
+=================
+
+* ctools plugin for faf_audience:audience_types
+* ctools exportable for faf_audience (FAF Audience Set)
+* ctools export_ui implementation for faf_audience 

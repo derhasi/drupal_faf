@@ -1,0 +1,13 @@
+; $Id$
+
+GENERAL
+=======
+* Looking for other concepts (especially regarding Drupal 7) dealing with "audience" and privacy.
+
+FEATURES
+========
+* Grouping of audience sets into one set
+* Concept for audience permissions, that can be used by other modules like faf.module itself.
+* Provide additional export load and save handling, so configurations for serialized
+  options like user-uid can be exported in an "exportable" way.
+  Maybe using exportable.module for that.
