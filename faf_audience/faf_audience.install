@@ -20,18 +20,18 @@ function faf_audience_uninstall() {
  * Contains ctools exportable definitions.
  */
 function faf_audience_schema() {
-  $schema['faf_audience'] = array(
+  $schema['faf_audience_preset'] = array(
     'description' => t('Table storing faf_audience definitions.'),
     'export' => array(
       'key' => 'name',
       'key name' => 'Name',
       'primary key' => 'aid',
-      'identifier' => 'faf_audience', // Exports will be as $faf_audience
+      'identifier' => 'faf_audience_preset', // Exports will be as $faf_audience
       'can disable' => TRUE,
-      'default hook' => 'default_faf_audience',  // Function hook name.
+      'default hook' => 'default_faf_audience_preset',  // Function hook name.
       'api' => array(
         'owner' => 'faf_audience',
-        'api' => 'default_faf_audience',  // Base name for api include files.
+        'api' => 'default_faf_audience_preset',  // Base name for api include files.
         'minimum_version' => 1,
         'current_version' => 1,
       ),
@@ -40,7 +40,7 @@ function faf_audience_schema() {
       'name' => array(
         'type' => 'varchar',
         'length' => '255',
-        'description' => 'Unique ID for this object. Used to identify it programmatically.',
+        'description' => 'Unique ID for this audience preset. Used to identify it programmatically.',
       ),
       'aid' => array(
         'type' => 'serial',
@@ -52,17 +52,17 @@ function faf_audience_schema() {
       'description' => array(
         'type' => 'varchar',
         'length' => '255',
-        'description' => 'A human readable name of faf_audience.',
+        'description' => 'A human readable name for the audience preset.',
       ),
       'atype' => array(
         'type' => 'varchar',
         'length' => '64',
-        'description' => 'Key for a faf_audience type.',
+        'description' => 'Name of audience type.',
       ),
-      'option' => array(
+      'selector' => array(
         'type' => 'varchar',
         'length' => '255',
-        'description' => 'A single primary option additional to atype.',
+        'description' => 'An optional primary setting, dependent on atype.',
       ),
       'config' => array(
         'type' => 'text',

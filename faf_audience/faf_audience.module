@@ -91,7 +91,7 @@ function faf_audience_ctools_plugin_directory($module, $plugin) {
  * Tell CTools that we support the default_faf_audience API.
  */
 function faf_audience_ctools_plugin_api($owner, $api) {
-  if ($owner == 'faf_audience' && $api == 'default_faf_audience') {
+  if ($owner == 'faf_audience' && $api == 'default_faf_audience_preset') {
     return array('version' => 1);
   }
 }
@@ -101,7 +101,7 @@ function faf_audience_ctools_plugin_api($owner, $api) {
 *
 * Provide a couple of default presets for
 */
-function faf_audience_default_faf_audience() {
+function faf_audience_default_faf_audience_preset() {
   $export = array();
 
   // Super User ($user->uid == 1)

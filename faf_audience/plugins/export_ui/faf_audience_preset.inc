@@ -10,25 +10,25 @@
  * Define this Export UI plugin.
  */
 $plugin = array(
-  'schema' => 'faf_audience',  // As defined in hook_schema().
+  'schema' => 'faf_audience_preset',  // As defined in hook_schema().
   'access' => 'administer faf_audience',  // Define a permission users must have to access these pages.
 
   // Define the menu item.
   'menu' => array(
-    'menu item' => 'faf_audience',
-    'menu title' => 'FAF Audience',
-    'menu description' => 'Administer FAF Audience sets.',
+    'menu item' => 'faf_audience_preset',
+    'menu title' => 'Audience',
+    'menu description' => 'Administer Audience presets.',
   ),
 
   // Define user interface texts.
-  'title singular' => t('set'),
-  'title plural' => t('sets'),
-  'title singular proper' => t('FAF audience set'),
-  'title plural proper' => t('FAF audience sets'),
+  'title singular' => t('preset'),
+  'title plural' => t('presets'),
+  'title singular proper' => t('Audience preset'),
+  'title plural proper' => t('Audience presets'),
 
   // Define the names of the functions that provide the add/edit forms.
   'form' => array(
-    'settings' => 'faf_audience_ctools_export_ui_form',
+    'settings' => 'faf_audience_preset_ctools_export_ui_form',
     // 'submit' and 'validate' are also valid callbacks.
   ),
 );
@@ -37,7 +37,7 @@ $plugin = array(
 /**
 * Define the preset add/edit form.
 */
-function faf_audience_ctools_export_ui_form(&$form, &$form_state) {
+function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
   $preset = $form_state['item'];
 
   $audience_types = faf_audience_types_options_array('label');
