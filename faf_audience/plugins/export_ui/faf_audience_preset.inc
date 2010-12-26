@@ -39,29 +39,24 @@ $plugin = array(
 */
 function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
   $preset = $form_state['item'];
+  _faf_audience_validate_preset($preset, TRUE);
 
+dpm($preset);
   $audience_types = faf_audience_types_options_array('label');
 
-  // Existing sets have to consist of a aid, a name and a valid Audience Type
-  if ($preset->aid && $preset->name && key_exists($preset->atype, $audience_types)) {
-
-  }
-
-  //
-  $new = (!isset($preset->atype) || !$preset->atype);
+  // Retrieve state of
+  $new = !(isset($preset->name) && $preset->name);
 
   // Creating
-  if ($new) {
-    $form['atype'] = array(
-      '#type' => 'select',
-      '#title' => t('Audience Type'),
-      '#description' => t('Select the audience type, this audience definition shall be specified by.'),
-      '#default_value' => NULL,
-      '#options' => $audience_types,
-      '#required' => TRUE,
-    );
-  }
-
+  $form['atype'] = array(
+    '#type' => 'select',
+    '#title' => t('Audience Type'),
+    '#description' => t('Select the audience type, this audience definition shall be specified by.'),
+    '#default_value' => NULL,
+    '#options' => $audience_types,
+    '#disabled' => !$new,
+    '#required' => TRUE,
+  );
   $form['description'] = array(
     '#type' => 'textfield',
     '#title' => t('Description'),
@@ -71,14 +66,13 @@ function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
   );
 
 
-
   // Add Mymodule's configuration interface.
   $form['config'] = array(
     '#type' => 'textfield',
     '#title' => t('Mymodule configuration'),
     '#description' => t('This is just the simplest possible example of a configuration interface.'),
     '#default_value' => $preset->config,
-    '#required' => true,
+    '#required' => false,
   );
 
 }

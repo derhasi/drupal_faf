@@ -116,3 +116,42 @@ function faf_audience_default_faf_audience_preset() {
 
   return $export;
 }
+
+
+/**
+ * Helper function to validate preset definition.
+ *
+ * @param $preset
+ *   a audience preset object.
+ * @param $set_error
+ *   boolean value, if set to true, it will fire errors on failed validations.
+ *
+ * @return
+ *   TRUE if validation was successful, else FALSE
+ */
+function _faf_audience_validate_preset($preset, $set_error = FALSE) {
+  $valid = TRUE;
+
+  // An existing preset needs an atype.
+  if (isset($preset->name)) {
+    if (!isset($preset->atype) || !$preset->atype) {
+      $valid = FALSE;
+      if ($set_error) {
+        form_set_error('atype', t('There has to be a audience type selected!'));
+      }
+    }
+  }
+
+  // Does audience type exist
+  if (isset($preset->atype)) {
+    $res = faf_audience_get_type($preset->atype);
+    if (empty($res)) {
+      $valid = FALSE;
+      if ($set_error) {
+        form_set_error('atype', t('The given audience type "%audience" is not available. Please activate or update the module providing this audience type.', array('%audience_type' => $preset->atype)));
+      }
+    }
+  }
+
+  return $valid;
+}
