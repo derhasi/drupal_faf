@@ -1,1 +1,6 @@
-; $Id$
+;$Id$
+name = "FAF Audience"
+description = "Define audience presets and groups, providing API functionality for that."
+core = 6.x
+dependencies[] = ctools
+package = FAF;

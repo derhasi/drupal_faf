@@ -6,7 +6,6 @@
  *   This information will be used by faf to define access groups.
  */
 
-
 /**
  * Wrapper function for loading types via ctools plugin.
  */
@@ -43,4 +42,38 @@ function faf_audience_ctools_plugin_types() {
     ),
     'process' => '_faf_audience_ctools_plugin_process',
   );
+}
+
+//----- Audience (Exportables) ----//
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ *
+ * Tell CTools that we support the default_faf_audience API.
+ */
+function faf_audience_ctools_plugin_api($owner, $api) {
+  if ($owner == 'faf_audience' && $api == 'default_faf_audience') {
+    return array('version' => 1);
+  }
+}
+
+/**
+* Implementation of hook_default_faf_audience().
+*
+* Provide a couple of default presets for
+*/
+function faf_audience_default_faf_audience() {
+  $export = array();
+
+  // Super User ($user->uid == 1)
+  $preset = new stdClass;
+  $preset->api_version = 1;
+  $preset->name = 'user_1';
+  $preset->description = 'Super user';
+  $preset->atype = 'user';
+  $preset->option = '1';
+  $preset->config = NULL;
+  $export['user_1'] = $preset;
+
+  return $export;
 }
