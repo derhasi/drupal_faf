@@ -110,48 +110,9 @@ function faf_audience_default_faf_audience_preset() {
   $preset->name = 'user_1';
   $preset->description = 'Super user';
   $preset->audience_type = 'user';
-  $preset->option = '1';
+  $preset->selector = '1';
   $preset->config = NULL;
   $export['user_1'] = $preset;
 
   return $export;
-}
-
-
-/**
- * Helper function to validate preset definition.
- *
- * @param $preset
- *   a audience preset object.
- * @param $set_error
- *   boolean value, if set to true, it will fire errors on failed validations.
- *
- * @return
- *   TRUE if validation was successful, else FALSE
- */
-function _faf_audience_validate_preset($preset, $set_error = FALSE) {
-  $valid = TRUE;
-
-  // An existing preset needs an audience_type.
-  if (isset($preset->name)) {
-    if (!isset($preset->audience_type) || !$preset->audience_type) {
-      $valid = FALSE;
-      if ($set_error) {
-        form_set_error('audience_type', t('There has to be a audience type selected!'));
-      }
-    }
-  }
-
-  // Does audience type exist
-  if (isset($preset->audience_type)) {
-    $res = faf_audience_get_type($preset->audience_type);
-    if (empty($res)) {
-      $valid = FALSE;
-      if ($set_error) {
-        form_set_error('audience_type', t('The given audience type "%audience" is not available. Please activate or update the module providing this audience type.', array('%audience_type' => $preset->audience_type)));
-      }
-    }
-  }
-
-  return $valid;
 }
