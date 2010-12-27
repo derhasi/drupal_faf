@@ -18,6 +18,43 @@
  */
 function faf_field_access($op, $field, $account, $node = NULL) {
 
+  switch ($op) {
+    case 'view':
+    //case 'edit':
+      $field_string = $node->type .':'. $field['field_name'];
+      $restricted_fields = _faf_get_restricted_fields();
+
+      if (key_exists($field_string, $restricted_fields)) {
+        $access = array();
+        // If all existent faf_fields restrict access
+        foreach ($restricted_fields[$field_string] as $faf_field => $dominant_denial) {
+          if (isset($node->$faf_field) && count($node->$faf_field)) {
+            $restrict = FALSE;
+            foreach($node->$faf_field as $item) {
+              $preset = $item['value'];
+              // Empty value means no restriction
+              if ($preset == '') {
+                $restrict = TRUE;
+                break;
+              }
+              // Check restriction on audience preset.
+              $restrict = faf_audience_is_member_of($preset, $account, array('node' => $node));
+              if ($restrict) break;
+            }
+            // Dominant denial will restrict access directly.
+            if ($dominant_denial && $restrict) {
+              return FALSE;
+            }
+            $access[] = $restrict;
+          }
+        }
+        // If any faf field was present, and no one granted access, deny it.
+        if (count($access) && !count(array_filter($access))) {
+          return FALSE;
+        }
+      }
+      break;
+  }
 }
 
 /**
@@ -67,10 +104,11 @@ function faf_field_settings($op, $field) {
     // in the database.
     case 'form':
       $form = array();
+      _faf_get_restricted_fields();
       $form['privacy_groups'] = array(
         '#type' => 'select',
         '#title' => t('Privacy Groups'),
-        '#options' => _faf_get_privacy_groups(),
+        '#options' => _faf_get_audience_presets(),
         '#multiple' => TRUE,
         '#default_value' => isset($field['privacy_groups'] ) ? $field['privacy_groups'] : array(),
         '#required' => TRUE,
@@ -87,7 +125,12 @@ function faf_field_settings($op, $field) {
         '#options' => _faf_get_content_fields(),
         '#default_value' => isset($field['fields'] ) ? $field['fields'] : array(),
       );
-
+      $form['dominant_denial'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Dominant denial'),
+        '#description' => t('If checked, all fields that are denied by this field are strictly denied and cannot be granted by other faf fields.'),
+        '#default_value' => (bool) $fields['dominant_denial'],
+      );
       return $form;
 
     // Return an array of the names of the field settings
@@ -96,7 +139,7 @@ function faf_field_settings($op, $field) {
     // and they will be available in the $field array.
     // This should match the items defined in 'form' above.
     case 'save':
-      return array('privacy_groups', 'fields');
+      return array('privacy_groups', 'fields', 'dominant_denial');
 
     // Define the database storage for this field using
     // the same construct used by schema API. Most fields
@@ -210,7 +253,7 @@ function faf_allowed_values($field) {
   if (!$field['required']) {
     $return[''] = t('&lt;No access restriction&gt;');
   }
-  $groups = _faf_get_privacy_groups();
+  $groups = _faf_get_audience_presets();
   $selected_groups = array_filter($field['privacy_groups']);
   $groups = array_intersect_key($groups, $selected_groups);
 
@@ -242,16 +285,52 @@ function _faf_get_content_fields() {
 }
 
 /**
- * Temp for testing. Will be provieded by privacy_groups.module.
+ * Wrapper fucntion to retrieve the audience presets defined by faf_audience as
+ * a key=>label array.
  */
-function _faf_get_privacy_groups() {
-  return array(
-    'g1' => 'Group 1',
-    'g2' => 'Group 2',
-    'g3' => 'Group 3',
-  );
+function _faf_get_audience_presets($shorten = FALSE) {
+  $static = ($shorten) ? __FUNCTION__ .'_shortened' : __FUNCTION__;
+  $return = ctools_static($static);
+
+  if (!$return) {
+    $audience_presets = faf_audience_get_presets();
+    $return = array();
+    foreach ($audience_presets as $preset) {
+      if ($shorten && drupal_strlen($preset->description) > 64) {
+        $text = (drupal_strlen($text) > 64) ? drupal_substr($text, 0, 61) .'...' : $text;
+      }
+      else {
+        $text = $preset->description;
+      }
+      $return[$preset->name] = $text;
+    }
+    ksort($return);
+  }
+  return $return;
 }
 
+/**
+ * Helper function that returns an array of the current faf restricted fields
+ * with the relevant faf-fields.
+ */
+function _faf_get_restricted_fields() {
+  $restricted_fields = ctools_static(__FUNCTION__);
+
+  if (!$restricted_fields) {
+    $fields = content_fields();
+    $restricted_fields = array();
+    foreach ($fields as $field_name => $field) {
+      if ($field['type'] == 'faf') {
+        $restricted = array_filter($field['fields']);
+        $dominant_denial = (bool) $field['dominant_denial'];
+        foreach ($restricted as $res_name => $res_field) {
+          $restricted_fields[$res_name][$field_name] = $dominant_denial;
+        }
+      }
+    }
+  }
+  return $restricted_fields;
+}
 
 /**
  * Implementation of hook_widget_info().
