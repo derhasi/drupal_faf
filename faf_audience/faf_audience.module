@@ -30,6 +30,48 @@ function faf_audience_get_type($audience_type) {
 }
 
 /**
+ * Wrapper function to get a list of presets.
+ *
+ * @param $reset
+ *   defaults to FALSE, set to TRUE to force clearing cache for export definitions.
+ * @return
+ *   an array of preset objects.
+ */
+function faf_audience_get_presets($reset = FALSE) {
+  ctools_include('export');
+
+  if ($reset) {
+    ctools_export_load_object_reset('faf_audience_preset');
+  }
+
+  // ctools_export_crud_load_all() needs not to be called as we know that
+  // faf_audience presets are loaded by the ctools default function, and so need
+  // not call the schema definition for that.
+  return ctools_export_load_object('faf_audience_preset', 'all');
+}
+
+/**
+ * Wrapper function get a sinlge preset definition.
+ *
+ * @param $preset_name
+ *   string identifier of the audience preset.
+ *
+ * @return
+ *   a audience preset object
+ *   NULL if load failed
+ */
+function faf_audience_get_preset($preset_name) {
+  ctools_include('export');
+  // ctools_export_crud_load() needs not to be called as we know that
+  // faf_audience presets are loaded by the ctools default function.
+
+  $result = ctools_export_load_object('faf_audience_preset', 'names', array($preset_name));
+  if (isset($result[$preset_name])) {
+    return $result[$preset_name];
+  }
+}
+
+/**
  * Check if the given user is member of the given audience preset
  *
  * @param $preset_name
@@ -53,6 +95,7 @@ function faf_audience_is_member_of($preset_name, $account = NULL, $context = arr
   }
 
   // Load preset
+  ctools_include('export');
   $preset = ctools_export_crud_load('faf_audience_preset', $preset_name);
   // Get callback for the presets audience type.
   $is_member_of_callback = ctools_plugin_load_function('faf_audience', 'audience_types', $preset->audience_type, 'is member callback');
