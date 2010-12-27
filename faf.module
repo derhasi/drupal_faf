@@ -105,12 +105,12 @@ function faf_field_settings($op, $field) {
     case 'form':
       $form = array();
       _faf_get_restricted_fields();
-      $form['privacy_groups'] = array(
+      $form['audience_presets'] = array(
         '#type' => 'select',
         '#title' => t('Privacy Groups'),
         '#options' => _faf_get_audience_presets(),
         '#multiple' => TRUE,
-        '#default_value' => isset($field['privacy_groups'] ) ? $field['privacy_groups'] : array(),
+        '#default_value' => isset($field['audience_presets'] ) ? $field['audience_presets'] : array(),
         '#required' => TRUE,
 
         // Use #element_validate to validate the settings.
@@ -139,7 +139,7 @@ function faf_field_settings($op, $field) {
     // and they will be available in the $field array.
     // This should match the items defined in 'form' above.
     case 'save':
-      return array('privacy_groups', 'fields', 'dominant_denial');
+      return array('audience_presets', 'fields', 'dominant_denial');
 
     // Define the database storage for this field using
     // the same construct used by schema API. Most fields
@@ -253,11 +253,11 @@ function faf_allowed_values($field) {
   if (!$field['required']) {
     $return[''] = t('&lt;No access restriction&gt;');
   }
-  $groups = _faf_get_audience_presets();
-  $selected_groups = array_filter($field['privacy_groups']);
-  $groups = array_intersect_key($groups, $selected_groups);
+  $presets = _faf_get_audience_presets();
+  $selected_presets = array_filter($field['audience_presets']);
+  $presets = array_intersect_key($presets, $selected_presets);
 
-  return array_merge($return, $groups);
+  return array_merge($return, $presets);
 }
 
 /**
