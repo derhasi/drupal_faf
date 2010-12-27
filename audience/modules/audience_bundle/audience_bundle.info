@@ -1,0 +1,7 @@
+;$Id$
+name = "Audience Bundle"
+description = "Bundle audience presets."
+core = 6.x
+dependencies[] = audience
+dependencies[] = ctools
+package = Audience;

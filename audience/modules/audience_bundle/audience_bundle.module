@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ *   This module provides a bundling mechanism for audience presets.
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function audience_bundle_perm() {
+  return array('administer audience bundles');
+}
+
+/**
+ * Implement hook_ctools_plugin_directory().
+ *
+ * So we can define some data for different plugins, as audience_types.
+ */
+function audience_bundle_ctools_plugin_directory($module, $plugin) {
+  // Audience Types
+  if ($module == 'audience' && $plugin == 'audience_types') {
+    return 'plugins/audience_types';
+  }
+  // Load the export_ui plugin for implementing audience settings page.
+  elseif ($plugin =='export_ui') {
+    return 'plugins/export_ui';
+  }
+}
