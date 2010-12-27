@@ -73,67 +73,33 @@ function audience_bundle_object_load_all($reset = FALSE){
 /**
  * Helper function to load all presets of a given audience bundle.
  *
- * @param $abids
+ * @param $audience_bundle_ids
  *   array of audience_bundle IDs (not names!)
  *   or NULL if all preset relations shall be returned
  * @return
  *  arrays of preset_names with 'audience bundle id' as key
  */
-function _audience_bundle_presets_load($abids = NULL) {
+function _audience_bundle_presets_load($audience_bundle_ids = NULL) {
   $presets = &ctools_static(__FUNCTION__);
-  $presets_all = &ctools_static(__FUNCTION__ .'_all');
 
-  $query = 'SELECT * FROM {audience_bundle_presets}';
-
-  // Run query to retrieve presets.
-  switch (TRUE) {
-    case (isset($abids)):
-      // Ensure $abids is an array.
-      if (!is_array($abids)) {
-        $abids = array($abids);
-      }
-      if ($presets_all) {
-        // All presets have allready been loaded.
-        break;
-      }
-
-      $args = array();
-      // Get abids that haven't been loaded to $presets yet.
-      foreach ($abids as $abid) {
-        if (!isset($presets[$abid])) {
-          $args[] = $abid;
-          // Set array, so it will not be loaded again, if there are really no
-          // presets assigned to this audience bundle.
-          $presets[$abid] = array();
-        }
-      }
-      // No new abids, so no need to query.
-      if (!count($args)) {
-        break;
-      }
-      $query .= 'WHERE abid IN (' . db_placeholders($args) . ')';
-    case (!$presets_all):
-
-      $res = db_query($query, $args);
-
-      while ($obj = db_fetch_object($res)) {
-        $presets[$obj->abid][$obj->preset] = $obj->preset;
-      }
-      if (!isset($abids)) {
-        $presets_all = TRUE;
-        return $presets;
-      }
-      break;
-    // No abids where given and all presets allready loaded
-    default:
-      return $presets;
-      break;
+  // Load all bundle - preset relations if they have not been loaded before.
+  if (!$presets) {
+    $res = db_query('SELECT * FROM {audience_bundle_presets}');
+    while ($obj = db_fetch_object($res)) {
+      $presets[$obj->abid][$obj->preset] = $obj->preset;
+    }
   }
 
-  // As switch allready returned for 'all', here only abid filtering has to take
-  // place, so a reduced presets array will be returned.
-  $return = array_intersect_key($presets, array_flip($abids));
-  return $return;
+  // Return all for no id set.
+  if (!isset($audience_bundle_ids)) {
+    return $presets;
+  }
+
+  // Return an array of the specified ids with its presets.
+  if (!is_array($audience_bundle_ids)) {
+    $audience_bundle_ids = array($audience_bundle_ids);
+  }
+  return array_intersect_key($presets, array_flip($audience_bundle_ids));
 }
 
 
