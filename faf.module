@@ -38,7 +38,7 @@ function faf_field_access($op, $field, $account, $node = NULL) {
                 break;
               }
               // Check restriction on audience preset.
-              $restrict = faf_audience_is_member_of($preset, $account, array('node' => $node));
+              $restrict = audience_is_member_of($preset, $account, array('node' => $node));
               if ($restrict) break;
             }
             // Dominant denial will restrict access directly.
@@ -293,7 +293,7 @@ function _faf_get_audience_presets($shorten = FALSE) {
   $return = ctools_static($static);
 
   if (!$return) {
-    $audience_presets = faf_audience_get_presets();
+    $audience_presets = audience_get_presets();
     $return = array();
     foreach ($audience_presets as $preset) {
       if ($shorten && drupal_strlen($preset->description) > 64) {

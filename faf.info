@@ -5,5 +5,5 @@ core = 6.x
 dependencies[] = content
 dependencies[] = optionwidgets
 dependencies[] = ctools
-dependencies[] = faf_audience
+dependencies[] = audience
 package = CCK
