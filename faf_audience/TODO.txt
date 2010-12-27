@@ -3,6 +3,11 @@
 GENERAL
 =======
 * Looking for other concepts (especially regarding Drupal 7) dealing with "audience" and privacy.
+* Look on the performance site of this module.
+
+BUGPREVENTION
+=============
+* Multistep on preset creation if type has selector options (or extra config).
 
 FEATURES
 ========

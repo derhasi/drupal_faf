@@ -80,7 +80,7 @@ function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
         '@audience_description' => $audience_type['description'],
         '%audience_type' => $audience_type['name'],
       );
-      $form['audience_type']['#description'] = t('This preset is of type %audience_label [%audience_type]: @audience_description', $tvars);
+      $form['audience_type']['#description'] = t('<em>The type can only be selected on preset creation.</em><br/> This preset is of type %audience_label [%audience_type]: @audience_description', $tvars);
 
       // Additional form for audience type.
 
