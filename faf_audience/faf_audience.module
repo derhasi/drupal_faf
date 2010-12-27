@@ -6,7 +6,6 @@
  *   This information will be used by faf to define access groups.
  */
 
-
 /**
  * Implementation of hook_perm().
  */
@@ -29,6 +28,42 @@ function faf_audience_get_type($audience_type) {
   ctools_include('plugins');
   return ctools_get_plugins('faf_audience', 'audience_types', $audience_type);
 }
+
+/**
+ * Check if the given user is member of the given audience preset
+ *
+ * @param $preset_name
+ *   string identifier of the audience preset to check on
+ * @param $account
+ *   user object of the user to check on
+ *   defaults to NULL so the current user will be used.
+ * @param $context
+ *   additional entities "member of" function can validate the user with, for
+ *   example array('node' => $node) to check on a given node, like in node
+ *   author/editor or userreference field.
+ *
+ * @return
+ *   TRUE if the user is member of the given audience preset in the given context
+ *   FALSE if not
+ */
+function faf_audience_is_member_of($preset_name, $account = NULL, $context = array()) {
+  if (!isset($account)) {
+    GLOBAL $user;
+    $account = $user;
+  }
+
+  // Load preset
+  $preset = ctools_export_crud_load('faf_audience_preset', $preset_name);
+  // Get callback for the presets audience type.
+  $is_member_of_callback = ctools_plugin_load_function('faf_audience', 'audience_types', $preset->audience_type, 'is member callback');
+  // Check on callback, if it exists.
+  if ($is_member_of_callback) {
+    return $is_member_of_callback($preset, $account, $context);
+  }
+  // Else return FALSE, as no callback could be found.
+  return FALSE;
+}
+
 
 /**
  * Helper function to retrieve options as keyed array from plugin definitions.
@@ -111,6 +146,26 @@ function faf_audience_default_faf_audience_preset() {
   $preset->selector = '1';
   $preset->config = NULL;
   $export['user_1'] = $preset;
+
+  // Anonymous user
+  $preset = new stdClass;
+  $preset->api_version = 1;
+  $preset->name = 'anonymous_user';
+  $preset->description = 'anonymous user';
+  $preset->audience_type = 'roles';
+  $preset->selector = '1';
+  $preset->config = NULL;
+  $export['anonymous_user'] = $preset;
+
+  // Authenticated user
+  $preset = new stdClass;
+  $preset->api_version = 1;
+  $preset->name = 'authenticated_user';
+  $preset->description = 'authenticated user';
+  $preset->audience_type = 'roles';
+  $preset->selector = '2';
+  $preset->config = NULL;
+  $export['authenticated_user'] = $preset;
 
   return $export;
 }

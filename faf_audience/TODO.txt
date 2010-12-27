@@ -4,6 +4,7 @@ GENERAL
 =======
 * Looking for other concepts (especially regarding Drupal 7) dealing with "audience" and privacy.
 * Look on the performance site of this module.
+  (e.g. node as nid vs. object, user as uid vs. object)
 
 BUGPREVENTION
 =============
