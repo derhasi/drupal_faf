@@ -108,7 +108,7 @@ function faf_field_settings($op, $field) {
       $form['audience_presets'] = array(
         '#type' => 'select',
         '#title' => t('Audience Presets'),
-        '#options' => _faf_get_audience_presets(),
+        '#options' => audience_presets_as_optionsarray(),
         '#multiple' => TRUE,
         '#default_value' => isset($field['audience_presets'] ) ? $field['audience_presets'] : array(),
         '#required' => TRUE,
@@ -265,7 +265,7 @@ function faf_allowed_values($field) {
   if (!$field['required'] && !$field['multiple']) {
     $return[''] = t('&lt;No access restriction&gt;');
   }
-  $presets = _faf_get_audience_presets();
+  $presets = audience_presets_as_optionsarray();
   $selected_presets = array_filter($field['audience_presets']);
   $presets = array_intersect_key($presets, $selected_presets);
 
@@ -294,31 +294,6 @@ function _faf_get_content_fields() {
   //asort($options);
 
   return $options;
-}
-
-/**
- * Wrapper fucntion to retrieve the audience presets defined by faf_audience as
- * a key=>label array.
- */
-function _faf_get_audience_presets($shorten = FALSE) {
-  $static = ($shorten) ? __FUNCTION__ .'_shortened' : __FUNCTION__;
-  $return = &ctools_static($static);
-
-  if (!$return) {
-    $audience_presets = audience_get_presets();
-    $return = array();
-    foreach ($audience_presets as $preset) {
-      if ($shorten && drupal_strlen($preset->description) > 64) {
-        $text = (drupal_strlen($text) > 64) ? drupal_substr($text, 0, 61) .'...' : $text;
-      }
-      else {
-        $text = $preset->description;
-      }
-      $return[$preset->name] = $text;
-    }
-    ksort($return);
-  }
-  return $return;
 }
 
 /**

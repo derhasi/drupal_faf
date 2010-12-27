@@ -73,6 +73,39 @@ function audience_get_preset($preset_name) {
 }
 
 /**
+ * Wrapper function to retrieve the audience presets prepared for options array.
+ *
+ * @param $shorten
+ *   either a boolean value, that indicates the if the labels shall be shortened
+ *   to a limited character count (defaults to 64), or a integer value that
+ *   defines the concretete character count
+ * @return
+ *   array of key-value pairs: key is the preset name, value the (maybe shortened)
+ *   preset label/description
+ */
+function audience_presets_as_optionsarray($shorten = FALSE) {
+  $static = ($shorten) ? __FUNCTION__ .'_shortened' : __FUNCTION__;
+  $return = &ctools_static($static);
+  $shorten = ($shorten === TRUE) ? 64 : (int) $shorten;
+
+  if (!$return) {
+    $audience_presets = audience_get_presets();
+    $return = array();
+    foreach ($audience_presets as $preset) {
+      if ($shorten && drupal_strlen($preset->description) > $shorten) {
+        $text = (drupal_strlen($text) > $shorten) ? drupal_substr($text, 0, $shorten - 3) .'...' : $text;
+      }
+      else {
+        $text = $preset->description;
+      }
+      $return[$preset->name] = $text;
+    }
+    ksort($return);
+  }
+  return $return;
+}
+
+/**
  * Check if the given user is member of the given audience preset
  *
  * @param $preset_name
@@ -145,7 +178,7 @@ function audience_ctools_plugin_audience_types() {
 }
 
 /**
- * Implement hook_ctools_plugin_directory().
+ * Implementation of hook_ctools_plugin_directory().
  *
  * So we can define some data for different plugins, as audience_types.
  */
