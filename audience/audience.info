@@ -1,6 +1,6 @@
 ;$Id$
 name = "Audience"
-description = "Define audience presets and groups, providing API functionality for that."
+description = "Define audience presets, providing API functionality for that."
 core = 6.x
 dependencies[] = ctools
-package = Audience;
+package = Audience
