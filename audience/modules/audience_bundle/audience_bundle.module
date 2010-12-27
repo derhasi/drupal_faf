@@ -115,7 +115,7 @@ function _audience_bundle_presets_load($audience_bundle_ids = NULL) {
  *   array of key-value pairs: key is the preset name, value the (maybe shortened)
  *   preset label/description
  */
-function audience_presets_as_optionsarray($shorten = FALSE) {
+function audience_bundles_as_optionsarray($shorten = FALSE) {
   $static = ($shorten) ? __FUNCTION__ .'_shortened' : __FUNCTION__;
   $return = &ctools_static($static);
   $shorten = ($shorten === TRUE) ? 64 : (int) $shorten;
