@@ -3,30 +3,31 @@
 /**
  * @file
  *   This module provides an API to define a audience via audience types.
- *   This information will be used by faf to define access groups.
+ *
+ *   This information will be used e.g by faf to define access groups.
  */
 
 /**
  * Implementation of hook_perm().
  */
-function faf_audience_perm() {
-  return array('administer faf_audience');
+function audience_perm() {
+  return array('administer audience');
 }
 
 /**
  * Wrapper function for loading types via ctools plugin.
  */
-function faf_audience_get_types() {
+function audience_get_types() {
   ctools_include('plugins');
-  return ctools_get_plugins('faf_audience', 'audience_types');
+  return ctools_get_plugins('audience', 'audience_types');
 }
 
 /**
  * Wrapper function for loading a single audience type, using ctools plugin.
  */
-function faf_audience_get_type($audience_type) {
+function audience_get_type($audience_type) {
   ctools_include('plugins');
-  return ctools_get_plugins('faf_audience', 'audience_types', $audience_type);
+  return ctools_get_plugins('audience', 'audience_types', $audience_type);
 }
 
 /**
@@ -37,17 +38,17 @@ function faf_audience_get_type($audience_type) {
  * @return
  *   an array of preset objects.
  */
-function faf_audience_get_presets($reset = FALSE) {
+function audience_get_presets($reset = FALSE) {
   ctools_include('export');
 
   if ($reset) {
-    ctools_export_load_object_reset('faf_audience_preset');
+    ctools_export_load_object_reset('audience_preset');
   }
 
   // ctools_export_crud_load_all() needs not to be called as we know that
-  // faf_audience presets are loaded by the ctools default function, and so need
+  // audience presets are loaded by the ctools default function, and so need
   // not call the schema definition for that.
-  return ctools_export_load_object('faf_audience_preset', 'all');
+  return ctools_export_load_object('audience_preset', 'all');
 }
 
 /**
@@ -60,12 +61,12 @@ function faf_audience_get_presets($reset = FALSE) {
  *   a audience preset object
  *   NULL if load failed
  */
-function faf_audience_get_preset($preset_name) {
+function audience_get_preset($preset_name) {
   ctools_include('export');
   // ctools_export_crud_load() needs not to be called as we know that
-  // faf_audience presets are loaded by the ctools default function.
+  // audience presets are loaded by the ctools default function.
 
-  $result = ctools_export_load_object('faf_audience_preset', 'names', array($preset_name));
+  $result = ctools_export_load_object('audience_preset', 'names', array($preset_name));
   if (isset($result[$preset_name])) {
     return $result[$preset_name];
   }
@@ -88,7 +89,7 @@ function faf_audience_get_preset($preset_name) {
  *   TRUE if the user is member of the given audience preset in the given context
  *   FALSE if not
  */
-function faf_audience_is_member_of($preset_name, $account = NULL, $context = array()) {
+function audience_is_member_of($preset_name, $account = NULL, $context = array()) {
   if (!isset($account)) {
     GLOBAL $user;
     $account = $user;
@@ -96,9 +97,9 @@ function faf_audience_is_member_of($preset_name, $account = NULL, $context = arr
 
   // Load preset
   ctools_include('export');
-  $preset = ctools_export_crud_load('faf_audience_preset', $preset_name);
+  $preset = ctools_export_crud_load('audience_preset', $preset_name);
   // Get callback for the presets audience type.
-  $is_member_of_callback = ctools_plugin_load_function('faf_audience', 'audience_types', $preset->audience_type, 'is member callback');
+  $is_member_of_callback = ctools_plugin_load_function('audience', 'audience_types', $preset->audience_type, 'is member callback');
   // Check on callback, if it exists.
   if ($is_member_of_callback) {
     return $is_member_of_callback($preset, $account, $context);
@@ -111,8 +112,8 @@ function faf_audience_is_member_of($preset_name, $account = NULL, $context = arr
 /**
  * Helper function to retrieve options as keyed array from plugin definitions.
  */
-function faf_audience_types_options_array($option) {
-  $plugins = faf_audience_get_types();
+function audience_types_options_array($option) {
+  $plugins = audience_get_types();
   $return = array();
   foreach ($plugins as $name => $plugin) {
     if (isset($plugin[$option])) {
@@ -127,7 +128,7 @@ function faf_audience_types_options_array($option) {
  *
  * Inform CTools about default values for the plugin implementation.
  */
-function faf_audience_ctools_plugin_audience_types() {
+function audience_ctools_plugin_audience_types() {
   return array(
     'defaults' => array(
       // A callback function
@@ -139,21 +140,21 @@ function faf_audience_ctools_plugin_audience_types() {
       // @TODO: maybe additional config form
       // 'config form' => '',
     ),
-    //'process' => '_faf_audience_ctools_plugin_process',
+    //'process' => '_audience_ctools_plugin_process',
   );
 }
 
 /**
  * Implement hook_ctools_plugin_directory().
  *
- * So we can define some data for different plugins, as faf_audience_types.
+ * So we can define some data for different plugins, as audience_types.
  */
-function faf_audience_ctools_plugin_directory($module, $plugin) {
+function audience_ctools_plugin_directory($module, $plugin) {
   // FAF Audience Types
-  if ($module == 'faf_audience' && $plugin == 'audience_types') {
+  if ($module == 'audience' && $plugin == 'audience_types') {
     return 'plugins/audience_types';
   }
-  // Load the export_ui plugin for implementing faf_audience settings page.
+  // Load the export_ui plugin for implementing audience settings page.
   elseif ($plugin =='export_ui') {
     return 'plugins/export_ui';
   }
@@ -164,20 +165,20 @@ function faf_audience_ctools_plugin_directory($module, $plugin) {
 /**
  * Implementation of hook_ctools_plugin_api().
  *
- * Tell CTools that we support the default_faf_audience API.
+ * Tell CTools that we support the default_audience API.
  */
-function faf_audience_ctools_plugin_api($owner, $api) {
-  if ($owner == 'faf_audience' && $api == 'default_faf_audience_preset') {
+function audience_ctools_plugin_api($owner, $api) {
+  if ($owner == 'audience' && $api == 'default_audience_preset') {
     return array('version' => 1);
   }
 }
 
 /**
- * Implementation of hook_default_faf_audience_preset().
+ * Implementation of hook_default_audience_preset().
  *
  * Provide a couple of default audience presets.
  */
-function faf_audience_default_faf_audience_preset() {
+function audience_default_audience_preset() {
   $export = array();
 
   // Super User ($user->uid == 1)

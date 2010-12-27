@@ -3,16 +3,16 @@
 
 /**
  * @file
- *   provides the 'user' audience type to faf_audience.
+ *   provides the 'user' audience type to audience.
  */
 
 $plugin = array(
   'label' => t('User'),
   'description' => t('A single user can be declared as audience.'),
-  'is member callback' => '_faf_audience_type_is_member_of_user',
+  'is member callback' => '_audience_type_is_member_of_user',
   'selector title' => t('User'),
   'selector description' => t('Select a user to be the "audience".'),
-  'selector options' => '_faf_audience_type_selector_options_user',
+  'selector options' => '_audience_type_selector_options_user',
 );
 
 /**
@@ -27,7 +27,7 @@ $plugin = array(
  *   an array of context objects, in a lot of cases this might be a node, given
  *   as array('node' => $node)
  */
-function _faf_audience_type_is_member_of_user($audience_preset, $account, $context = array()) {
+function _audience_type_is_member_of_user($audience_preset, $account, $context = array()) {
   $audience_preset_user = $audience_preset->selector;
   return ($account->uid == $audience_preset_user);
 }
@@ -35,7 +35,7 @@ function _faf_audience_type_is_member_of_user($audience_preset, $account, $conte
 /**
  * Callback function to retrieve all current users.
  */
-function _faf_audience_type_selector_options_user() {
+function _audience_type_selector_options_user() {
   static $users;
 
   if (empty($users)) {

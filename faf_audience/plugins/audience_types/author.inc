@@ -3,7 +3,7 @@
 
 /**
  * @file
- *  provides the 'author' audience type to faf_audience.
+ *  provides the 'author' audience type to audience.
  *
  *  The audience consists of the author of the given node, and/or the node
  *  editors (as stored in the node revisions table).
@@ -12,7 +12,7 @@
 $plugin = array(
   'label' => t('Author'),
   'description' => t('Declare node author and/or editors as audience.'),
-  'is member callback' => '_faf_audience_type_is_member_of_author',
+  'is member callback' => '_audience_type_is_member_of_author',
   'selector options' => array(
     'author' => t('Current author only'),
     'editor' => t('Editors only'),
@@ -35,7 +35,7 @@ $plugin = array(
  *   an array of context objects, in a lot of cases this might be a node, given
  *   as array('node' => $node)
  */
-function _faf_audience_type_is_member_of_author($audience_preset, $account, $context = array()) {
+function _audience_type_is_member_of_author($audience_preset, $account, $context = array()) {
   if (isset($context['node']) && is_object($context['node']) && $context['node']->nid) {
     $node = $context['node'];
 

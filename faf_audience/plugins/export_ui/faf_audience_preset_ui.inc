@@ -10,12 +10,12 @@
  * Define this Export UI plugin.
  */
 $plugin = array(
-  'schema' => 'faf_audience_preset',  // As defined in hook_schema().
-  'access' => 'administer faf_audience',  // Define a permission users must have to access these pages.
+  'schema' => 'audience_preset',  // As defined in hook_schema().
+  'access' => 'administer audience',  // Define a permission users must have to access these pages.
 
   // Define the menu item.
   'menu' => array(
-    'menu prefix' => 'admin/build/faf_audience',
+    'menu prefix' => 'admin/build/audience',
     'menu item' => 'audience_preset',
     'menu title' => 'Audience Presets',
     'menu description' => 'Administer Audience presets.',
@@ -29,8 +29,8 @@ $plugin = array(
 
   // Define the names of the functions that provide the add/edit forms.
   'form' => array(
-    'settings' => 'faf_audience_preset_ctools_export_ui_form',
-    'validate' => 'faf_audience_preset_ctools_export_ui_form_validate',
+    'settings' => 'audience_preset_ctools_export_ui_form',
+    'validate' => 'audience_preset_ctools_export_ui_form_validate',
     // 'submit' and 'validate' are also valid callbacks.
   ),
 );
@@ -39,9 +39,9 @@ $plugin = array(
 /**
 * Define the preset add/edit form.
 */
-function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
+function audience_preset_ctools_export_ui_form(&$form, &$form_state) {
   $preset = $form_state['item'];
-  $audience_types = faf_audience_types_options_array('label');
+  $audience_types = audience_types_options_array('label');
   // Retrieve state of preset
   $new = !(isset($preset->name) && $preset->name);
 
@@ -67,7 +67,7 @@ function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
   // Show audience type specific description and form.
   if (isset($preset->audience_type)) {
     // Load type definition.
-    $audience_type = faf_audience_get_type($preset->audience_type);
+    $audience_type = audience_get_type($preset->audience_type);
 
     // Audience type module seems to not be active. Alter description.
     if (!$audience_type) {
@@ -116,9 +116,9 @@ function faf_audience_preset_ctools_export_ui_form(&$form, &$form_state) {
 }
 
 /**
- * Validate faf_audience_preset settings form.
+ * Validate audience_preset settings form.
  */
-function faf_audience_preset_ctools_export_ui_form_validate($form, &$form_state) {
+function audience_preset_ctools_export_ui_form_validate($form, &$form_state) {
   $values = $form_state['values'];
 
   // An existing preset needs an audience_type.
@@ -127,7 +127,7 @@ function faf_audience_preset_ctools_export_ui_form_validate($form, &$form_state)
   }
   // Does audience type definition exist?
   else {
-    $res = faf_audience_get_type($values['audience_type']);
+    $res = audience_get_type($values['audience_type']);
     if (empty($res)) {
       form_set_error('audience_type', t('The given audience type "%audience_type" is not available. Please activate or update the module providing this audience type.', array('%audience_type' => $values['audience_type'])));
     }

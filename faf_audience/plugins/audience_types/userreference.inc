@@ -3,7 +3,7 @@
 
 /**
  * @file
- *  provides the 'userrefernce' audience type to faf_audience.
+ *  provides the 'userrefernce' audience type to audience.
  *
  *  The audience consists of users defined in the selected userreference field
  *  of the given node.
@@ -13,8 +13,8 @@ if (module_exists('userreference')) {
   $plugin = array(
     'label' => t('Userreference Field'),
     'description' => t('Declare users of a userreference field as audience.'),
-    'is member callback' => '_faf_audience_type_is_member_of_userreference',
-    'selector options' => '_faf_audience_type_selector_options_userreference',
+    'is member callback' => '_audience_type_is_member_of_userreference',
+    'selector options' => '_audience_type_selector_options_userreference',
     'selector title' => t('Userreference Field'),
     'selector description' => t('Select the userreference field that shall define the audience for the then-given node.'),
   );
@@ -33,7 +33,7 @@ if (module_exists('userreference')) {
  *   an array of context objects, in a lot of cases this might be a node, given
  *   as array('node' => $node)
  */
-function _faf_audience_type_is_member_of_userreference($audience_preset, $account, $context = array()) {
+function _audience_type_is_member_of_userreference($audience_preset, $account, $context = array()) {
   if (isset($context['node']) && is_object($context['node']) && $context['node']->nid) {
     $node = $context['node'];
 
@@ -53,7 +53,7 @@ function _faf_audience_type_is_member_of_userreference($audience_preset, $accoun
 /**
  * Helper function to retrieve the userrefernce fields.
  */
-function _faf_audience_type_selector_options_userreference() {
+function _audience_type_selector_options_userreference() {
   $fields = content_fields();
   $return = array();
   foreach ($fields as $name => $field) {

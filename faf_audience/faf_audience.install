@@ -3,15 +3,15 @@
 /**
  * Implementation of hook_install().
  */
-function faf_audience_install() {
-  drupal_install_schema('faf_audience');
+function audience_install() {
+  drupal_install_schema('audience');
 }
 
 /**
  * Implementation of hook_uninstall().
  */
-function faf_audience_uninstall() {
-  drupal_uninstall_schema('faf_audience');
+function audience_uninstall() {
+  drupal_uninstall_schema('audience');
 }
 
 /**
@@ -19,19 +19,19 @@ function faf_audience_uninstall() {
  *
  * Contains ctools exportable definitions.
  */
-function faf_audience_schema() {
-  $schema['faf_audience_preset'] = array(
-    'description' => t('Table storing faf_audience definitions.'),
+function audience_schema() {
+  $schema['audience_preset'] = array(
+    'description' => t('Table storing audience definitions.'),
     'export' => array(
       'key' => 'name',
       'key name' => 'Name',
       'primary key' => 'aid',
-      'identifier' => 'faf_audience_preset', // Exports will be as $faf_audience
+      'identifier' => 'audience_preset', // Exports will be as $audience
       'can disable' => TRUE,
-      'default hook' => 'default_faf_audience_preset',  // Function hook name.
+      'default hook' => 'default_audience_preset',  // Function hook name.
       'api' => array(
-        'owner' => 'faf_audience',
-        'api' => 'default_faf_audience_preset',  // Base name for api include files.
+        'owner' => 'audience',
+        'api' => 'default_audience_preset',  // Base name for api include files.
         'minimum_version' => 1,
         'current_version' => 1,
       ),
