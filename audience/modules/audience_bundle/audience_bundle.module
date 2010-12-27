@@ -36,7 +36,8 @@ function audience_bundle_ctools_plugin_directory($module, $plugin) {
  * @return
  *  single audience bundle object
  */
-function audience_bundle_object_load($name){
+function audience_bundle_get_bundle($name){
+  ctools_include('export');
   $results = ctools_export_load_object('audience_bundles', 'names', array($name));
   if (isset($results[$name])) {
     $abid = $results[$name]->abid;
@@ -54,11 +55,12 @@ function audience_bundle_object_load($name){
  * @return
  *  single audience bundle object
  */
-function audience_bundle_object_load_all($reset = FALSE){
+function audience_bundle_get_bundles($reset = FALSE){
   $all = &ctools_static(__FUNCTION__);
 
   if ($reset || !$all) {
     $all = array();
+    ctools_include('export');
     $results = ctools_export_load_object('audience_bundles', 'all');
     foreach ($results as $name => $result) {
       $abid = $result->abid;
@@ -102,6 +104,39 @@ function _audience_bundle_presets_load($audience_bundle_ids = NULL) {
   return array_intersect_key($presets, array_flip($audience_bundle_ids));
 }
 
+/**
+ * Wrapper function to retrieve the audience bundles prepared for options array.
+ *
+ * @param $shorten
+ *   either a boolean value, that indicates the if the labels shall be shortened
+ *   to a limited character count (defaults to 64), or a integer value that
+ *   defines the concretete character count
+ * @return
+ *   array of key-value pairs: key is the preset name, value the (maybe shortened)
+ *   preset label/description
+ */
+function audience_presets_as_optionsarray($shorten = FALSE) {
+  $static = ($shorten) ? __FUNCTION__ .'_shortened' : __FUNCTION__;
+  $return = &ctools_static($static);
+  $shorten = ($shorten === TRUE) ? 64 : (int) $shorten;
+
+  if (!$return) {
+    $audience_presets = audience_bundle_get_bundles();
+    $return = array();
+    foreach ($audience_presets as $preset) {
+      if ($shorten && drupal_strlen($preset->description) > $shorten) {
+        $text = (drupal_strlen($text) > $shorten) ? drupal_substr($text, 0, $shorten - 3) .'...' : $text;
+      }
+      else {
+        $text = $preset->description;
+      }
+      $return[$preset->name] = $text;
+    }
+    ksort($return);
+  }
+  return $return;
+}
+
 
 /**
  * Save function for saving ctools exportable to db.
@@ -115,6 +150,7 @@ function _audience_bundle_presets_load($audience_bundle_ids = NULL) {
  */
 function audience_bundle_object_save(&$object) {
   $key = 'abid';
+  ctools_include('export');
   if ($object->export_type & EXPORT_IN_DATABASE) {
     // Existing record.
     $update = array($key);
