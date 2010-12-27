@@ -27,3 +27,179 @@ function audience_bundle_ctools_plugin_directory($module, $plugin) {
     return 'plugins/export_ui';
   }
 }
+
+/**
+ * Load a single audience bundle definition by name.
+ *
+ * @param $name
+ *  the audience bundle name
+ * @return
+ *  single audience bundle object
+ */
+function audience_bundle_object_load($name){
+  $results = ctools_export_load_object('audience_bundles', 'names', array($name));
+  if (isset($results[$name])) {
+    $abid = $results[$name]->abid;
+    $presets = _audience_bundle_presets_load(array($abid));
+    $results[$name]->presets = array_values($presets[$abid]);
+    return $results[$name];
+  }
+}
+
+/**
+ * Load a single audience bundle definition by name.
+ *
+ * @param $name
+ *  the audience bundle name
+ * @return
+ *  single audience bundle object
+ */
+function audience_bundle_object_load_all($reset = FALSE){
+  $all = &ctools_static(__FUNCTION__);
+
+  if ($reset || !$all) {
+    $all = array();
+    $results = ctools_export_load_object('audience_bundles', 'all');
+    foreach ($results as $name => $result) {
+      $abid = $result->abid;
+      $presets = _audience_bundle_presets_load(array($abid));
+      $result->presets = array_values($presets[$abid]);
+      $all[$name] = $result;
+    }
+  }
+  return $all;
+}
+
+/**
+ * Helper function to load all presets of a given audience bundle.
+ *
+ * @param $abids
+ *   array of audience_bundle IDs (not names!)
+ *   or NULL if all preset relations shall be returned
+ * @return
+ *  arrays of preset_names with 'audience bundle id' as key
+ */
+function _audience_bundle_presets_load($abids = NULL) {
+  $presets = &ctools_static(__FUNCTION__);
+  $presets_all = &ctools_static(__FUNCTION__ .'_all');
+
+  $query = 'SELECT * FROM {audience_bundle_presets}';
+
+  // Run query to retrieve presets.
+  switch (TRUE) {
+    case (isset($abids)):
+      // Ensure $abids is an array.
+      if (!is_array($abids)) {
+        $abids = array($abids);
+      }
+      if ($presets_all) {
+        // All presets have allready been loaded.
+        break;
+      }
+
+      $args = array();
+      // Get abids that haven't been loaded to $presets yet.
+      foreach ($abids as $abid) {
+        if (!isset($presets[$abid])) {
+          $args[] = $abid;
+          // Set array, so it will not be loaded again, if there are really no
+          // presets assigned to this audience bundle.
+          $presets[$abid] = array();
+        }
+      }
+      // No new abids, so no need to query.
+      if (!count($args)) {
+        break;
+      }
+      $query .= 'WHERE abid IN (' . db_placeholders($args) . ')';
+    case (!$presets_all):
+
+      $res = db_query($query, $args);
+
+      while ($obj = db_fetch_object($res)) {
+        $presets[$obj->abid][$obj->preset] = $obj->preset;
+      }
+      if (!isset($abids)) {
+        $presets_all = TRUE;
+        return $presets;
+      }
+      break;
+    // No abids where given and all presets allready loaded
+    default:
+      return $presets;
+      break;
+  }
+
+  // As switch allready returned for 'all', here only abid filtering has to take
+  // place, so a reduced presets array will be returned.
+  $return = array_intersect_key($presets, array_flip($abids));
+  return $return;
+}
+
+
+/**
+ * Save function for saving ctools exportable to db.
+ *
+ * Custom implementation is needed, as presets have to be saved in own folder.
+ *
+ * @param $object
+ *  audience bundle object
+ * @return
+ *  a drupal_write_record() return value.
+ */
+function audience_bundle_object_save(&$object) {
+  $key = 'abid';
+  if ($object->export_type & EXPORT_IN_DATABASE) {
+    // Existing record.
+    $update = array($key);
+  }
+  else {
+    // New record.
+    $update = array();
+    $object->export_type = EXPORT_IN_DATABASE;
+  }
+  $success = drupal_write_record($table, $object, $update);
+
+  // Only write presets to {audience_bundle_presets} if bundle cut be saved.
+  if ($success) {
+    // Delete existing abid => preset to write current definitions back again
+    $abid = $object->$key;
+    db_query('DELETE FROM {audience_bundle_presets} WHERE abid = %d', $abid);
+    // Only write presets, if they are given.
+    if (isset($object->presets) && !empty($object->presets)) {
+      if (!is_array($object->presets)) {
+        $object->presets = array($object->presets);
+      }
+      // No empty presets.
+      $object->presets = array_filter($object->presets);
+
+      // Build query.
+      $query = 'INSERT INTO {audience_bundle_presets} (abid, preset) VALUES ';
+      $placeholders = array();
+      foreach ($object->presets as $preset) {
+        $placeholders[] = "(%d, '%s')";
+        $args[] = $abid;
+        $args[] = $preset;
+      }
+      // There are presets to set.
+      if (count($placeholders)) {
+        $query .= implode(', ', $placeholders);
+        db_query($query, $args);
+      }
+    }
+  }
+  return $success;
+}
+
+/**
+ * Delete a given audience_bundle from the database.
+ *
+ * @param $object
+ *   either fully populated bundle object or bundle name.
+ * @return
+ *   no return value
+ */
+function audience_bundle_object_delete($object) {
+  $value = is_object($object) ? $object->name : $object;
+  db_query("DELETE FROM {audience_bundles} b LEFT JOIN {audience_bundle_presets} p ON (b.abid = p.abid) WHERE p.name = '%s'", $value);
+}

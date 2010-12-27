@@ -34,6 +34,20 @@ function audience_bundle_schema() {
         'minimum_version' => 1,
         'current_version' => 1,
       ),
+      'load callback' => 'audience_bundle_object_load',
+      'load all callback' => 'audience_bundle_object_load_all',
+      'save callback' => 'audience_bundle_object_save',
+      'delete callback' => 'audience_bundle_object_delete',
+    ),
+    'join' => array(
+      'audience_bundle_presets' => array(
+        'table' => 'audience_bundle_presets',
+        'left_key' => 'abid',
+        'right_key' => 'abid',
+        'load' => array(
+          'preset',
+        ),
+      ),
     ),
     'fields' => array(
       'name' => array(
@@ -57,6 +71,25 @@ function audience_bundle_schema() {
     'primary key' => array('abid'),
     'unique keys' => array(
       'name' => array('name'),
+    ),
+  );
+
+  $schema['audience_bundle_presets'] = array(
+    'description' => t('Table storing the preset relation to audience bundles.'),
+    'fields' => array(
+      'abid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
+        'no export' => TRUE, // Do not export database-only keys.
+      ),
+      'preset' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'description' => 'Unique ID for this audience_bundle. Used to identify it programmatically.',
+      ),
     ),
   );
   return $schema;
