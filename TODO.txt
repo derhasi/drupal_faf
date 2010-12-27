@@ -1,0 +1,11 @@
+; $Id$
+
+* General privacy concept for more than fields
+* AND/OR within faf_field values, between faf_fields, with other field access
+  restrictions
+* audience concept for nodes?
+
+
+FEATURES
+========
+- jQuery widget
