@@ -201,15 +201,21 @@ function faf_field($op, &$node, $field, &$items, $teaser, $page) {
       if (is_array($items)) {
         $first = TRUE;
         foreach ($items as $delta => $item) {
-
-          // The error_element is needed so that CCK can
-          // set an error on the right sub-element when
-          // fields are deeply nested in the form.
-          $error_element = isset($item['_error_element']) ? $item['_error_element'] : '';
-          if (is_array($item) && isset($item['_error_element'])) unset($item['_error_element']);
-          $allowed_values = array_keys(faf_allowed_values($field));
-          if (!in_array($item['value'], $allowed_values)) {
-            form_set_error($error_element, t('%name: the passed value %value is not allowed.', array('%name' => $field['widget']['label'], '%value' => $item['value'])));
+          if ($first || !faf_content_is_empty($item, $field)) {
+            // The error_element is needed so that CCK can
+            // set an error on the right sub-element when
+            // fields are deeply nested in the form.
+            $error_element = isset($item['_error_element']) ? $item['_error_element'] : '';
+            if (is_array($item) && isset($item['_error_element'])) unset($item['_error_element']);
+            $allowed_values = array_keys(faf_allowed_values($field));
+            if (!in_array($item['value'], $allowed_values)) {
+              form_set_error($error_element, t('%name: the passed value %value is not allowed.', array('%name' => $field['widget']['label'], '%value' => $item['value'])));
+            }
+            $first = FALSE;
+          }
+          else {
+            // remove empty ones from value
+            unset($items[$delta]);
           }
         }
       }
@@ -246,11 +252,17 @@ function faf_content_is_empty($item, $field) {
  *
  * This implementation let us use optionwidgets.module cck widgets.
  * @see content_allowed_values().
+ *
+ * @param $field
+ *   field array of cck field
+ * @param $with_empty
+ *   indicator if empty value shall be passed. Necessary for validation, as on
+ *   non-required fields, value might be empty.
  */
 function faf_allowed_values($field) {
   $return = array();
 
-  if (!$field['required']) {
+  if (!$field['required'] && !$field['multiple']) {
     $return[''] = t('&lt;No access restriction&gt;');
   }
   $presets = _faf_get_audience_presets();
