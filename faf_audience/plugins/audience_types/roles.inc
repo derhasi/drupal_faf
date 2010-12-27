@@ -29,5 +29,5 @@ $plugin = array(
  */
 function _faf_audience_type_is_member_of_role($audience_preset, $account, $context = array()) {
   $audience_preset_role = $audience_preset->selector;
-  return key_exists($account->uid, $account->roles);
+  return key_exists($audience_preset_role, $account->roles);
 }
