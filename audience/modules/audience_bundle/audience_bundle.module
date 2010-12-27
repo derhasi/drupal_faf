@@ -40,10 +40,14 @@ function audience_bundle_get_bundle($name){
   ctools_include('export');
   $results = ctools_export_load_object('audience_bundles', 'names', array($name));
   if (isset($results[$name])) {
-    $abid = $results[$name]->abid;
-    $presets = _audience_bundle_presets_load(array($abid));
-    $results[$name]->presets = array_values($presets[$abid]);
-    return $results[$name];
+    $result = $results[$name];
+    // only bundles stored in database have an abID and need to load presets
+    // relation separately.
+    if (isset($result->abid)) {
+      $presets = _audience_bundle_presets_load(array($result->abid));
+      $result->presets = array_values($presets[$result->abid]);
+    }
+    return $result;
   }
 }
 
@@ -63,9 +67,12 @@ function audience_bundle_get_bundles($reset = FALSE){
     ctools_include('export');
     $results = ctools_export_load_object('audience_bundles', 'all');
     foreach ($results as $name => $result) {
-      $abid = $result->abid;
-      $presets = _audience_bundle_presets_load(array($abid));
-      $result->presets = array_values($presets[$abid]);
+      // Only bundles stored in database have abid set and need to have presets
+      // loaded seperately.
+      if (isset($result->abid)) {
+        $presets = _audience_bundle_presets_load(array($result->abid));
+        $result->presets = array_values($presets[$result->abid]);
+      }
       $all[$name] = $result;
     }
   }
@@ -101,6 +108,7 @@ function _audience_bundle_presets_load($audience_bundle_ids = NULL) {
   if (!is_array($audience_bundle_ids)) {
     $audience_bundle_ids = array($audience_bundle_ids);
   }
+  array_filter($audience_bundle_ids);
   return array_intersect_key($presets, array_flip($audience_bundle_ids));
 }
 
@@ -160,7 +168,7 @@ function audience_bundle_object_save(&$object) {
     $update = array();
     $object->export_type = EXPORT_IN_DATABASE;
   }
-  $success = drupal_write_record($table, $object, $update);
+  $success = drupal_write_record('audience_bundles', $object, $update);
 
   // Only write presets to {audience_bundle_presets} if bundle cut be saved.
   if ($success) {

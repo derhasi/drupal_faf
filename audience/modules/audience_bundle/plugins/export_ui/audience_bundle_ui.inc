@@ -51,8 +51,8 @@ function audience_bundle_ctools_export_ui_form(&$form, &$form_state) {
   // Show select form element for selectore
   $form['presets'] = array(
     '#type' => 'select',
-    '#title' => $audience_type['selector title'],
-    '#description' => $audience_type['selector description'],
+    '#title' => t('Audience presets'),
+    '#description' => t('Select the audience presets to build a bundle with'),
     '#options' => audience_presets_as_optionsarray(TRUE),
     '#default_value' => $bundle->presets,
     '#multiple' => TRUE,
