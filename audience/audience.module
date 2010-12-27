@@ -150,7 +150,7 @@ function audience_ctools_plugin_audience_types() {
  * So we can define some data for different plugins, as audience_types.
  */
 function audience_ctools_plugin_directory($module, $plugin) {
-  // FAF Audience Types
+  // Audience Types
   if ($module == 'audience' && $plugin == 'audience_types') {
     return 'plugins/audience_types';
   }

@@ -4,5 +4,5 @@ Initial DEV State
 =================
 
 * ctools plugin for audience:audience_types
-* ctools exportable for audience (FAF Audience Set)
-* ctools export_ui implementation for audience 
+* ctools exportable for audience (Audience)
+* ctools export_ui implementation for audience

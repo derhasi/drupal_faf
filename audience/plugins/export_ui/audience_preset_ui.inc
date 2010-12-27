@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Export UI plugin for setting up FAF Audience sets and make them exportable
+ * Export UI plugin for setting up Audience presets and make them exportable
  * via UI.
  */
 
