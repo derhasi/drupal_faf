@@ -36,7 +36,7 @@ function _audience_type_is_member_of_user($audience_preset, $account, $context =
  * Callback function to retrieve all current users.
  */
 function _audience_type_selector_options_user() {
-  $users = ctools_static(__FUNCTION__);
+  $users = &ctools_static(__FUNCTION__);
 
   if (empty($users)) {
     $users = array();

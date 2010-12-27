@@ -302,7 +302,7 @@ function _faf_get_content_fields() {
  */
 function _faf_get_audience_presets($shorten = FALSE) {
   $static = ($shorten) ? __FUNCTION__ .'_shortened' : __FUNCTION__;
-  $return = ctools_static($static);
+  $return = &ctools_static($static);
 
   if (!$return) {
     $audience_presets = audience_get_presets();
@@ -326,7 +326,7 @@ function _faf_get_audience_presets($shorten = FALSE) {
  * with the relevant faf-fields.
  */
 function _faf_get_restricted_fields() {
-  $restricted_fields = ctools_static(__FUNCTION__);
+  $restricted_fields = &ctools_static(__FUNCTION__);
 
   if (!$restricted_fields) {
     $fields = content_fields();
