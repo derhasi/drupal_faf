@@ -13,7 +13,7 @@ function audience_bundle_perm() {
 }
 
 /**
- * Implement hook_ctools_plugin_directory().
+ * Implementation of hook_ctools_plugin_directory().
  *
  * So we can define some data for different plugins, as audience_types.
  */
@@ -168,4 +168,62 @@ function audience_bundle_object_save(&$object) {
 function audience_bundle_object_delete($object) {
   $value = is_object($object) ? $object->name : $object;
   db_query("DELETE FROM {audience_bundles} b LEFT JOIN {audience_bundle_presets} p ON (b.abid = p.abid) WHERE p.name = '%s'", $value);
+}
+
+
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ *
+ * Tell CTools that we provide a default_audience_bundle and want to
+ * define a default audience preset.
+ */
+function audience_bundle_ctools_plugin_api($owner, $api) {
+  if ($owner == 'audience' && $api == 'default_audience_preset') {
+    return array('version' => 1);
+  }
+  elseif ($owner == 'audience_bundle' && $api == 'default_audience_bundle') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implementation of hook_default_audience_preset().
+ *
+ * Provide a simple of default audience presets.
+ */
+function audience_bundle_default_audience_preset() {
+  $export = array();
+
+  // Authenticated user
+  $preset = new stdClass;
+  $preset->api_version = 1;
+  $preset->name = 'all_users';
+  $preset->description = 'all users';
+  $preset->audience_type = 'audience_bundle_or';
+  $preset->selector = 'all_users_bundle';
+  $preset->config = NULL;
+  $export['all_users'] = $preset;
+
+  return $export;
+}
+
+/**
+ * Implementation of hook_default_audience_bundle().
+ *
+ * Provide default audience bundles.
+ */
+function audience_bundle_default_audience_bundle() {
+  $export = array();
+
+  // Authenticated user
+  $bundle = new stdClass;
+  $bundle->api_version = 1;
+  $bundle->name = 'all_users_bundle';
+  $bundle->description = 'All Users (either anonymous or authenticated)';
+  $bundle->audience_type = 'audience_bundle_or';
+  $bundle->presets = array('anonymous_user', 'authenticated_user');
+  $export['all_users'] = $bundle;
+
+  return $export;
 }
