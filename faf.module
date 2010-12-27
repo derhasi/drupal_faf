@@ -107,7 +107,7 @@ function faf_field_settings($op, $field) {
       _faf_get_restricted_fields();
       $form['audience_presets'] = array(
         '#type' => 'select',
-        '#title' => t('Privacy Groups'),
+        '#title' => t('Audience Presets'),
         '#options' => _faf_get_audience_presets(),
         '#multiple' => TRUE,
         '#default_value' => isset($field['audience_presets'] ) ? $field['audience_presets'] : array(),
@@ -115,7 +115,7 @@ function faf_field_settings($op, $field) {
 
         // Use #element_validate to validate the settings.
         //'#element_validate' => array('_faf_length_validate'),
-        '#description' => t('Select privacy groups that shall be selectable for the user.'),
+        '#description' => t('Select audience types that shall be selectable for the user.'),
       );
 
       $form['fields'] = array(
