@@ -201,7 +201,7 @@ function faf_field($op, &$node, $field, &$items, $teaser, $page) {
       if (is_array($items)) {
         $first = TRUE;
         foreach ($items as $delta => $item) {
-          if ($first || !faf_content_is_empty($item, $field)) {
+          if (($first && $field['required']) || !faf_content_is_empty($item, $field)) {
             // The error_element is needed so that CCK can
             // set an error on the right sub-element when
             // fields are deeply nested in the form.
