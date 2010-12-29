@@ -1,8 +1,0 @@
-; $Id$
-
-Initial DEV State
-=================
-
-* ctools plugin for audience:audience_types
-* ctools exportable for audience (Audience)
-* ctools export_ui implementation for audience
