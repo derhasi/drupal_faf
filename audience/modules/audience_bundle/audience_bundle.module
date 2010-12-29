@@ -64,11 +64,13 @@ function audience_bundle_get_bundles($reset = FALSE){
 
   if ($reset || !$all) {
     $all = array();
+    // Use ctools load function to load the defaults from code and
+    // and base table from database
     ctools_include('export');
     $results = ctools_export_load_object('audience_bundles', 'all');
     foreach ($results as $name => $result) {
       // Only bundles stored in database have abid set and need to have presets
-      // loaded seperately.
+      // loaded seperately (as they are stored in a separate databse table).
       if (isset($result->abid)) {
         $presets = _audience_bundle_presets_load(array($result->abid));
         $result->presets = array_values($presets[$result->abid]);
@@ -109,7 +111,19 @@ function _audience_bundle_presets_load($audience_bundle_ids = NULL) {
     $audience_bundle_ids = array($audience_bundle_ids);
   }
   array_filter($audience_bundle_ids);
-  return array_intersect_key($presets, array_flip($audience_bundle_ids));
+
+  $return = array();
+  // Assure that all audience bundle ids have a value in $presets, to avoid
+  // non-array errors.
+  foreach ($audience_bundle_ids as $abid) {
+    if (!isset($presets[$abid])) {
+      $presets[$abid] = array();
+    }
+    // And build the return array directly (), instead of using
+    // array_intersect_key afterwards.
+    $return[$abid] = $presets[$abid];
+  }
+  return $return;
 }
 
 /**
@@ -170,9 +184,9 @@ function audience_bundle_object_save(&$object) {
   }
   $success = drupal_write_record('audience_bundles', $object, $update);
 
-  // Only write presets to {audience_bundle_presets} if bundle cut be saved.
+  // Only write presets to {audience_bundle_presets} if bundle could be saved.
   if ($success) {
-    // Delete existing abid => preset to write current definitions back again
+    // Delete existing abid => preset relations, then write current presets.
     $abid = $object->$key;
     db_query('DELETE FROM {audience_bundle_presets} WHERE abid = %d', $abid);
     // Only write presets, if they are given.
@@ -213,8 +227,6 @@ function audience_bundle_object_delete($object) {
   $value = is_object($object) ? $object->name : $object;
   db_query("DELETE FROM {audience_bundles} b LEFT JOIN {audience_bundle_presets} p ON (b.abid = p.abid) WHERE p.name = '%s'", $value);
 }
-
-
 
 /**
  * Implementation of hook_ctools_plugin_api().

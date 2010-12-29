@@ -31,6 +31,7 @@ $plugin = array(
   'form' => array(
     'settings' => 'audience_bundle_ctools_export_ui_form',
     'validate' => 'audience_bundle_ctools_export_ui_form_validate',
+    'submit' => 'audience_bundle_ctools_export_ui_form_submit',
     // 'submit' and 'validate' are also valid callbacks.
   ),
 );
@@ -65,5 +66,10 @@ function audience_bundle_ctools_export_ui_form(&$form, &$form_state) {
  */
 function audience_bundle_ctools_export_ui_form_validate($form, &$form_state) {
   $values = $form_state['values'];
+
+}
+function audience_bundle_ctools_export_ui_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  $form_state['item']->presets = $values['presets'];
 
 }

@@ -25,7 +25,7 @@ function audience_bundle_schema() {
     'export' => array(
       'key' => 'name',
       'key name' => 'Name',
-      'primary key' => 'aid',
+      'primary key' => 'abid',
       'identifier' => 'audience_bundles', // Exports will be as $audience_bundle
       'default hook' => 'default_audience_bundle',  // Function hook name.
       'api' => array(
@@ -38,17 +38,20 @@ function audience_bundle_schema() {
       'load all callback' => 'audience_bundle_get_bundles',
       'save callback' => 'audience_bundle_object_save',
       'delete callback' => 'audience_bundle_object_delete',
+      //'list callback' => 'audience_bundles_as_optionsarray',
     ),
-    'join' => array(
-      'audience_bundle_presets' => array(
-        'table' => 'audience_bundle_presets',
-        'left_key' => 'abid',
-        'right_key' => 'abid',
-        'load' => array(
-          'preset',
-        ),
-      ),
-    ),
+    // Join is managed by custom load and save functions, as it is a n-to-n
+    // relation.
+    //'join' => array(
+    //  'audience_bundle_presets' => array(
+    //    'table' => 'audience_bundle_presets',
+    //    'left_key' => 'abid',
+    //    'right_key' => 'abid',
+    //    'load' => array(
+    //      'preset',
+    //    ),
+    //  ),
+    //),
     'fields' => array(
       'name' => array(
         'type' => 'varchar',
