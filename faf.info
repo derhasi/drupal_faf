@@ -1,6 +1,6 @@
 ;$Id$
 name = "Field Access Field"
-description = "Control access on fields via a cck field"
+description = 'Control access on fields via a cck field. <strong>Depends on <a href="http://github.com/derhasi/audience">Audience</a> (hosted on github at the moment)</strong>'
 core = 6.x
 dependencies[] = content
 dependencies[] = optionwidgets
