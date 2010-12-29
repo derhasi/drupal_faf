@@ -13,6 +13,8 @@ BUGPREVENTION
 FEATURES
 ========
 * Grouping of audience sets into one set => audience_bundle
+* NOT audience_type
+* admin/build/audience overview page (e.g. audience types)
 * Integration for rules (e.g. condition) - (context to rules entities?)
 * Concept for audience permissions, that can be used by other modules like faf.module itself.
 * Provide additional export load and save handling, so configurations for serialized
