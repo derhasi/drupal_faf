@@ -29,23 +29,23 @@ function faf_field_access($op, $field, $account, $node = NULL) {
         // If all existent faf_fields restrict access
         foreach ($restricted_fields[$field_string] as $faf_field => $dominant_denial) {
           if (isset($node->$faf_field) && count($node->$faf_field)) {
-            $restrict = FALSE;
+            $grant = FALSE;
             foreach($node->$faf_field as $item) {
               $preset = $item['value'];
               // Empty value means no restriction
               if ($preset == '') {
-                $restrict = TRUE;
+                $grant = TRUE;
                 break;
               }
               // Check restriction on audience preset.
-              $restrict = audience_is_member_of($preset, $account, array('node' => $node));
-              if ($restrict) break;
+              $grant = audience_is_member_of($preset, $account, array('node' => $node));
+              if ($grant) break;
             }
             // Dominant denial will restrict access directly.
-            if ($dominant_denial && $restrict) {
+            if ($dominant_denial && !$grant) {
               return FALSE;
             }
-            $access[] = $restrict;
+            $access[] = $grant;
           }
         }
         // If any faf field was present, and no one granted access, deny it.
