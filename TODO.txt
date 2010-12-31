@@ -1,5 +1,6 @@
 ; $Id$
 
+* Implement "edit field" restriction
 * AND/OR within faf_field values, between faf_fields, with other field access
   restrictions
 * Merge with CCK Privacy

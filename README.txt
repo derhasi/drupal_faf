@@ -25,6 +25,9 @@ another Field Access Field.
 Audience definitions are provided by audience.module (currently on
 https://github.com/derhasi/audience).
 
+Currently only "view field" permissions are controlled by Field Access Field.
+Once Audience supports permission handling "edit field" would be integrated too.
+
 Field settings
 ==============
 
