@@ -115,7 +115,7 @@ function faf_field_settings($op, $field) {
 
         // Use #element_validate to validate the settings.
         //'#element_validate' => array('_faf_length_validate'),
-        '#description' => t('Select audience types that shall be selectable for the user.<br/> Audience presets can be created or edited on <em>!link</em>', array('!link' => l(t('Audience Preset Settings'), 'admin/build/audience/audience_preset'))),
+        '#description' => t('Select audience types that shall be selectable for the user.<br/> Audience presets can be created or edited on <em>!link</em>', array('!link' => l(t('Audience Preset Settings'), 'admin/build/audience/presets'))),
       );
 
       $form['fields'] = array(
