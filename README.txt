@@ -37,6 +37,9 @@ Number of values
 ----------------
 On multiple selections, users are granted access if they are member of one of
 the selected items. So audience selections are ORed within a field.
+If you want to AND presets at the moment, you have to build an audience_bundle
+using the "Audience Bundle: -AND-" audience type defined by
+audience_bundle.module shipped with Audience.
 
 Fields
 ------
@@ -56,6 +59,11 @@ Else access on a field is granted, if one or more field access fields grant
 access and no other hook_field_access implementations deny access on the field.
 So different Field Access Fields are ANDed, unless one uses "Dominant denial"
 
+Export Fields
+=============
+If you want to export your field (using features.module), you should also export
+the selected audience presets, and maybe defined audience bundles.
+
 Similar modules
 ===============
 
@@ -68,3 +76,7 @@ Field Permissions
 -----------------
 That module is the successor of cck's content_permission module. But it only
 provides per-role based permissions.
+
+Sponsors
+========
+Development is sponsored by Zehnplus (zehnplus.ch)

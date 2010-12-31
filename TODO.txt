@@ -1,11 +1,16 @@
 ; $Id$
 
-* General privacy concept for more than fields
 * AND/OR within faf_field values, between faf_fields, with other field access
   restrictions
-* audience concept for nodes?
+* Merge with CCK Privacy
+* General privacy concept for more than fields
+* privacy for nodes? (node access with audience)?
 
 
 FEATURES
 ========
-- jQuery widget
+* jQuery widget
+
+DRUPAL 7
+========
+* compare concepts of new OG (drupal.org/project/og)

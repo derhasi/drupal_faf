@@ -1,1 +1,10 @@
 ; $Id$
+
+Field Access Field 6.x-1.x-dev
+==============================
+
+- Added "Dominant Denial" selector to field settings.
+- Control field access restriction via hook_field_access().
+- Implemented audience.module
+- Added Widgets for Select and Checkboxes/Radios
+- Added CCK Field "Field Access Field"
