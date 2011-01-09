@@ -262,11 +262,12 @@ function faf_content_is_empty($item, $field) {
 function faf_allowed_values($field) {
   $return = array();
 
+
   if (!$field['required'] && !$field['multiple']) {
     $return[''] = t('&lt;No access restriction&gt;');
   }
   $presets = audience_presets_as_optionsarray();
-  $selected_presets = array_filter($field['audience_presets']);
+  $selected_presets = array_filter((array) $field['audience_presets']);
   $presets = array_intersect_key($presets, $selected_presets);
 
   return array_merge($return, $presets);
