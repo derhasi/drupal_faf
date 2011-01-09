@@ -68,6 +68,11 @@ function faf_theme() {
     'faf_buttons' => array(
       'arguments' => array('element' => NULL),
     ),
+    'faf_audience_presets_selection' => array(
+      'file' => 'faf.admin.inc',
+      'arguments' => array('form' => NULL),
+    ),
+
     //'faf_formatter_default' => array(
     //  'arguments' => array('element'),
     //),
@@ -104,20 +109,8 @@ function faf_field_settings($op, $field) {
     // in the database.
     case 'form':
       $form = array();
-      _faf_get_restricted_fields();
-      $form['audience_presets'] = array(
-        '#type' => 'select',
-        '#title' => t('Audience Presets'),
-        '#options' => audience_presets_as_optionsarray(),
-        '#multiple' => TRUE,
-        '#default_value' => isset($field['audience_presets'] ) ? $field['audience_presets'] : array(),
-        '#required' => TRUE,
-
-        // Use #element_validate to validate the settings.
-        //'#element_validate' => array('_faf_length_validate'),
-        '#description' => t('Select audience types that shall be selectable for the user.<br/> Audience presets can be created or edited on <em>!link</em>', array('!link' => l(t('Audience Preset Settings'), 'admin/build/audience/presets'))),
-      );
-
+      // Build audience preset selection form
+      $form['audience_presets'] = _faf_audience_presets_selection_form_helper($field);
       $form['fields'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Fields'),
@@ -267,10 +260,78 @@ function faf_allowed_values($field) {
     $return[''] = t('&lt;No access restriction&gt;');
   }
   $presets = audience_presets_as_optionsarray();
-  $selected_presets = array_filter((array) $field['audience_presets']);
+
+  // Narrow down the options, to activated ones, selected in field settings.
+  $selected_presets = (array) $field['audience_presets'];
+  array_walk($selected_presets, '_faf_options_walk');
+  $selected_presets = array_filter($selected_presets);
   $presets = array_intersect_key($presets, $selected_presets);
 
   return array_merge($return, $presets);
+}
+
+/**
+ * Function used by uasort to sort structured arrays by weight value.
+ */
+function _faf_options_sort($a, $b) {
+  $a_weight = (is_array($a) && isset($a['weight'])) ? $a['weight'] : 0;
+  $b_weight = (is_array($b) && isset($b['weight'])) ? $b['weight'] : 0;
+  if ($a_weight == $b_weight) {
+    return 0;
+  }
+  return ($a_weight < $b_weight) ? -1 : 1;
+}
+
+/**
+ * Function used by array_walk to flatten structured arrays to key by active.
+ */
+function _faf_options_walk(&$item, $key) {
+  if (is_array($item)) {
+    if ($item['active']) {
+      $item = $key;
+    }
+    else {
+      $item = FALSE;
+    }
+  }
+}
+
+/**
+ * Helper form function to build the audience presets selection element.
+ */
+function _faf_audience_presets_selection_form_helper($field) {
+  $form = array(
+    '#type' => 'markup',
+    '#theme' => 'faf_audience_presets_selection',
+    '#title' => t('Audience Presets'),
+    '#tree' => TRUE,
+    '#description' => t('Select audience types that shall be selectable for the user.<br/> Audience presets can be created or edited on <em>!link</em>', array('!link' => l(t('Audience Preset Settings'), 'admin/build/audience/presets'))),
+  );
+  $values = $field['audience_presets'];
+  $options = audience_presets_as_optionsarray();
+  $count = count($options);
+  foreach ($options as $name => $label) {
+    if (!isset($values[$name]) || !is_array($values[$name])) {
+      $val = $values[$name] = array(
+        'active' => 'FALSE',
+        'value' => $name,
+        'weight' => $count,
+      );
+    }
+
+    $form[$name]['active'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable %audience_preset', array('%audience_preset' => $label)),
+      '#default_value' => (bool) $values[$name]['active'],
+    );
+    $form[$name]['weight'] = array(
+      '#type' => 'weight',
+      '#title' => t('Weight'),
+      '#default_value' => (bool) $values[$name]['weight'],
+      '#delta' => $count,
+    );
+  }
+  return $form;
 }
 
 /**
