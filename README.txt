@@ -4,7 +4,7 @@
 
 Dependencies
 ============
-ChaosTools: http://druüal.org/project/ctools
+ChaosTools: http://drupal.org/project/ctools
 Audience : http://github.com/derhasi/audience
 
 Module description
