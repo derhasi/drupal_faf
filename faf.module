@@ -313,10 +313,10 @@ function _faf_audience_presets_selection_form_helper($field) {
   $options = audience_presets_as_optionsarray();
   $count = count($options);
   foreach ($options as $name => $label) {
+    // Set default options for new presets
     if (!isset($values[$name]) || !is_array($values[$name])) {
-      $val = $values[$name] = array(
-        'active' => 'FALSE',
-        'value' => $name,
+      $values[$name] = array(
+        'active' => FALSE,
         'weight' => $count,
       );
     }
