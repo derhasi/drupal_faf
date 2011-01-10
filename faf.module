@@ -263,11 +263,13 @@ function faf_allowed_values($field) {
 
   // Narrow down the options, to activated ones, selected in field settings.
   $selected_presets = (array) $field['audience_presets'];
-  array_walk($selected_presets, '_faf_options_walk');
-  $selected_presets = array_filter($selected_presets);
-  $presets = array_intersect_key($presets, $selected_presets);
-
-  return array_merge($return, $presets);
+  uasort($selected_presets, '_faf_options_sort');
+  foreach ($selected_presets as $key => $val) {
+    if (is_array($val) && $val['active'] && isset($presets[$key])) {
+      $return[$key] = $presets[$key];
+    }
+  }
+  return $return;
 }
 
 /**
