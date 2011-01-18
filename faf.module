@@ -116,7 +116,7 @@ function faf_field_settings($op, $field) {
         '#title' => t('Fields'),
         '#description' => t('Select the fields which access shall be controlled by this field.'),
         '#options' => _faf_get_content_fields(),
-        '#default_value' => isset($field['fields'] ) ? $field['fields'] : array(),
+        '#default_value' => isset($field['fields']) ? (array) $field['fields'] : array(),
       );
       $form['dominant_denial'] = array(
         '#type' => 'checkbox',
@@ -371,7 +371,7 @@ function _faf_get_restricted_fields() {
     $fields = content_fields();
     $restricted_fields = array();
     foreach ($fields as $field_name => $field) {
-      if ($field['type'] == 'faf') {
+      if ($field['type'] == 'faf' && isset($field['fields']) && is_array($field['fields'])) {
         $restricted = array_filter($field['fields']);
         $dominant_denial = (bool) $field['dominant_denial'];
         foreach ($restricted as $res_name => $res_field) {
