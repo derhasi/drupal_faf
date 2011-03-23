@@ -266,7 +266,7 @@ function faf_allowed_values($field) {
   uasort($selected_presets, '_faf_options_sort');
   foreach ($selected_presets as $key => $val) {
     if (is_array($val) && $val['active'] && isset($presets[$key])) {
-      $return[$key] = $presets[$key];
+      $return[$key] = t($presets[$key]);
     }
   }
   return $return;
