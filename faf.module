@@ -38,7 +38,7 @@ function faf_field_access($op, $field, $account, $node = NULL) {
                 break;
               }
               // Check restriction on audience preset.
-              $grant = audience_is_member_of($preset, $account, array('node' => $node));
+              $grant = audience_is_member_of($preset, array('node' => $node), $account);
               if ($grant) break;
             }
             // Dominant denial will restrict access directly.
